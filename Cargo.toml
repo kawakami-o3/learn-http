@@ -1,7 +1,16 @@
 [package]
-name = "LearnHTTP"
+name = "learn-http"
 version = "0.1.0"
 authors = ["kawakami <kawakami.ozone@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+
+[[bin]]
+name = "http-server"
+path = "src/http-server/main.rs"
+
+[[bin]]
+name = "http-client"
+path = "src/http-client/main.rs"
+
