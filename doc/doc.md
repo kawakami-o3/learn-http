@@ -42,7 +42,11 @@ SP             = <US-ASCII SP, space (32)>
 ```
 
 ```
-Simple-Response = [ Entity-Body ] 
+Simple-Response = [ Entity-Body ]
+
+Entity-Body    = *OCTET
+
+OCTET          = <any 8-bit sequence of data>
 ```
 
 
