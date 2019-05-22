@@ -9,6 +9,43 @@ GET /
 GET http://hoge.com/
 ```
 
+```
+Simple-Request  = "GET" SP Request-URI CRLF
+
+Request-URI    = absoluteURI | abs_path
+
+absoluteURI    = scheme ":" *( uchar | reserved )
+
+abs_path       = "/" rel_path
+rel_path       = [ path ] [ ";" params ] [ "?" query ]
+
+path           = fsegment *( "/" segment )
+fsegment       = 1*pchar
+segment        = *pchar
+
+params         = param *( ";" param )
+param          = *( pchar | "/" )
+
+scheme         = 1*( ALPHA | DIGIT | "+" | "-" | "." )
+query          = *( uchar | reserved )
+fragment       = *( uchar | reserved )
+
+pchar          = uchar | ":" | "@" | "&" | "=" | "+"
+uchar          = unreserved | escape
+reserved       = ";" | "/" | "?" | ":" | "@" | "&" | "=" | "+"
+
+ALPHA          = UPALPHA | LOALPHA
+DIGIT          = <any US-ASCII digit "0".."9">
+CR             = <US-ASCII CR, carriage return (13)>
+LF             = <US-ASCII LF, linefeed (10)>
+SP             = <US-ASCII SP, space (32)>
+```
+
+```
+Simple-Response = [ Entity-Body ] 
+```
+
+
 
 # HTTP/1.0
 
