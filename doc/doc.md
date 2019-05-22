@@ -32,8 +32,20 @@ fragment       = *( uchar | reserved )
 
 pchar          = uchar | ":" | "@" | "&" | "=" | "+"
 uchar          = unreserved | escape
-reserved       = ";" | "/" | "?" | ":" | "@" | "&" | "=" | "+"
+unreserved     = ALPHA | DIGIT | safe | extra | national
 
+escape         = "%" HEX HEX
+reserved       = ";" | "/" | "?" | ":" | "@" | "&" | "=" | "+"
+extra          = "!" | "*" | "'" | "(" | ")" | ","
+safe           = "$" | "-" | "_" | "."
+unsafe         = CTL | SP | <"> | "#" | "%" | "<" | ">"
+national       = <any OCTET excluding ALPHA, DIGIT, reserved, extra, safe, and unsafe>
+
+HEX            = "A" | "B" | "C" | "D" | "E" | "F"
+               | "a" | "b" | "c" | "d" | "e" | "f" | DIGIT
+
+UPALPHA        = <any US-ASCII uppercase letter "A".."Z">
+LOALPHA        = <any US-ASCII lowercase letter "a".."z">
 ALPHA          = UPALPHA | LOALPHA
 DIGIT          = <any US-ASCII digit "0".."9">
 CR             = <US-ASCII CR, carriage return (13)>
