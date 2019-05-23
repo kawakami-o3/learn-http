@@ -1,23 +1,66 @@
+
+mod http_request;
+
 use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream};
+//use crate::http_request;
+//use self::http_request;
 
-const BUF_SIZE: usize = 1024;
 
 const HOST: & str = "127.0.0.1:34254";
 
+const CR: u8 = 13;
+const LF: u8 = 10;
+
+fn create_response(request: Vec<u8>) -> Vec<u8> {
+    let res = request.clone();
+    println!("{:?}", http_request::parse(request));
+    //println!("{:?}", parse(request));
+    return res;
+}
+
+fn is_terminated(request: &Vec<u8>) -> bool {
+    let len = request.len();
+
+    // too short
+    if len < 2 {
+        return false;
+    }
+
+    //return request[len-2] == CR && request[len-1] == LF;
+    return request[len-2..len] == [CR, LF];
+}
+
 fn handle_client(stream: &mut TcpStream) {
     //let mut buf = [0; 128];
-    let mut buf = vec![0; BUF_SIZE];
-    match stream.read(&mut buf) {
-        Ok(n) => {
-            println!("ok : {}\n{}", n, String::from_utf8(buf[0..n].to_vec()).unwrap());
-            stream.write(&buf[0..n]).unwrap();
-        }
-        Err(e) => {
-            println!("err: {:?}", e);
-            stream.write("error\r\n".as_bytes()).unwrap();
+    let mut buf = vec![0; 1024];
+
+    let mut request = Vec::new();
+
+    loop {
+        match stream.read(&mut buf) {
+            Ok(n) => {
+                //println!("ok : {}\n{}", n, String::from_utf8(buf[0..n].to_vec()).unwrap());
+                //stream.write(&buf[0..n]).unwrap();
+                println!("> {}", n);
+                request.append(&mut buf[0..n].to_vec());
+                if n < 2 {
+                    break;
+                } else if is_terminated(&request) {
+                    break;
+                }
+            }
+            Err(e) => {
+                println!("ERR: {:?}", e);
+                return;
+                //stream.write("error\r\n".as_bytes()).unwrap();
+            }
         }
     }
+
+    let response = create_response(request);
+    println!("{:?}", String::from_utf8(response.clone()));
+    stream.write(response.as_slice()).unwrap();
 }
 
 fn main() -> std::io::Result<()> {
@@ -25,7 +68,14 @@ fn main() -> std::io::Result<()> {
 
     println!("starting...");
     for stream in listener.incoming() {
-        handle_client(&mut stream?);
+        match stream {
+            Ok(mut stream) => {
+                handle_client(&mut stream);
+            }
+            Err(e) => {
+                println!("ERR: {:?}", e);
+            }
+        }
     }
     Ok(())
 }

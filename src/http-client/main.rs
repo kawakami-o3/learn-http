@@ -2,8 +2,8 @@ use std::io::prelude::*;
 use std::net::TcpStream;
 
 fn main() -> std::io::Result<()> {
-    //let host = "127.0.0.1:34254";
-    let host = "www.google.com:80";
+    let host = "127.0.0.1:34254";
+    //let host = "www.google.com:80";
     let mut stream = TcpStream::connect(host)?;
 
     // Ex.) curl 127.0.0.1:34254 --http1.0
@@ -12,8 +12,8 @@ fn main() -> std::io::Result<()> {
     // Simple-Request
     //let cnt = format!("GET http://{}/\r\n", host);
     //let cnt = format!("GET http://www.google.com/\r\n", host);
-    let cnt = format!("GET http://www.google.com/\r\n");
-    //let cnt = format!("GET /\r\n");
+    //let cnt = format!("GET http://www.google.com/\r\n");
+    let cnt = format!("GET /\r\n");
 
     stream.write(cnt.as_bytes())?;
     //let mut buf = vec![0; 1024*1024*1024];
