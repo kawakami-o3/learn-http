@@ -8,9 +8,9 @@ edition = "2018"
 
 [[bin]]
 name = "http-server"
-path = "src/http-server/main.rs"
+path = "src/http-server.rs"
 
 [[bin]]
 name = "http-client"
-path = "src/http-client/main.rs"
+path = "src/http-client.rs"
 
