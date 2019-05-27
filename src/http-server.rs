@@ -12,9 +12,9 @@ const HOST: & str = "127.0.0.1:34254";
 const CR: u8 = 13;
 const LF: u8 = 10;
 
-fn create_response(request: Vec<u8>) -> Vec<u8> {
-    let res = request.clone();
-    println!("{:?}", http_request::parse(request));
+fn create_response(request: http_request::Request) -> Vec<u8> {
+    let res = request.bytes();
+    //println!("{:?}", http_request::parse(request));
     //println!("{:?}", parse(request));
     return res;
 }
@@ -27,7 +27,7 @@ fn is_terminated(request: &Vec<u8>) -> bool {
         return false;
     }
 
-    //return request[len-2] == CR && request[len-1] == LF;
+    // for simple request.
     return request[len-2..len] == [CR, LF];
 }
 
@@ -35,7 +35,7 @@ fn handle_client(stream: &mut TcpStream) {
     //let mut buf = [0; 128];
     let mut buf = vec![0; 1024];
 
-    let mut request = Vec::new();
+    let mut request = http_request::new();
 
     loop {
         match stream.read(&mut buf) {
@@ -43,12 +43,17 @@ fn handle_client(stream: &mut TcpStream) {
                 //println!("ok : {}\n{}", n, String::from_utf8(buf[0..n].to_vec()).unwrap());
                 //stream.write(&buf[0..n]).unwrap();
                 println!("> {}", n);
-                request.append(&mut buf[0..n].to_vec());
-                if n < 2 {
-                    break;
-                } else if is_terminated(&request) {
+                request.parse(&mut buf[0..n].to_vec());
+                if request.is_terminated() {
                     break;
                 }
+                /*
+                if n < 2 {
+                    break;
+                } else if is_terminated(&requestBytes) {
+                    break;
+                }
+                */
             }
             Err(e) => {
                 println!("ERR: {:?}", e);
