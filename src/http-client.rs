@@ -13,7 +13,7 @@ fn main() -> std::io::Result<()> {
     //let cnt = format!("GET http://{}/\r\n", host);
     //let cnt = format!("GET http://www.google.com/\r\n", host);
     //let cnt = format!("GET http://www.google.com/\r\n");
-    let cnt = format!("GET /\r\n");
+    let cnt = format!("GET /index.html\r\n");
 
     stream.write(cnt.as_bytes())?;
     //let mut buf = vec![0; 1024*1024*1024];
