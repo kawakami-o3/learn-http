@@ -31,7 +31,7 @@ fn is_terminated(request: &Vec<u8>) -> bool {
     return request[len-2..len] == [CR, LF];
 }
 
-fn handle_client(stream: &mut TcpStream) {
+fn handle_request(stream: &mut TcpStream) {
     //let mut buf = [0; 128];
     let mut buf = vec![0; 1024];
 
@@ -75,7 +75,7 @@ fn main() -> std::io::Result<()> {
     for stream in listener.incoming() {
         match stream {
             Ok(mut stream) => {
-                handle_client(&mut stream);
+                handle_request(&mut stream);
             }
             Err(e) => {
                 println!("ERR: {:?}", e);

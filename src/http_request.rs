@@ -9,6 +9,14 @@ const SP: u8 = 32;
 //const LF: u8 = 10;
 
 //fn tokenize(content: Vec<u8>)
+//
+
+#[derive(PartialEq, Clone, Debug)]
+enum Version {
+    V0_9,
+    V1_0,
+    V1_1,
+}
 
 #[derive(PartialEq, Clone, Debug)]
 enum Method {
@@ -25,6 +33,8 @@ pub struct Request {
 
     method: Method,
     uri: String,
+    version: Version,
+    verStr: String,
 
     idx: usize,
     space_count: u32,
@@ -37,6 +47,8 @@ pub fn new() -> Request {
         bytes: Vec::new(),
         method: Method::NONE,
         uri: String::new(),
+        version: Version::V0_9,
+        verStr: String::new(),
 
         idx: 0,
         space_count: 0,
@@ -79,24 +91,41 @@ impl Request {
             }
         }
 
-        while !(self.space_count >= 2 || self.terminated) {
+        // parse untile the first line break.
+        loop {
             if "\r\n".as_bytes() == &self.bytes[self.idx..self.idx+2] {
-                // HTTP/0.9
-                self.terminated = true;
+                match self.verStr.as_str() {
+                    "HTTP/1.0" => {
+                        self.version = Version::V1_0;
+                    }
+                    "HTTP/1.1" => {
+                        self.version = Version::V1_1;
+                    }
+                    _ => {
+                        self.version = Version::V0_9;
+                    }
+                }
                 self.idx += 2;
+                break;
             } else if SP == self.bytes[self.idx] {
-                // HTTP/1.0
-            } else {
+                self.space_count += 1;
+                self.idx += 1;
+            } else if self.space_count == 1 {
                 self.uri.push(char::from(self.bytes[self.idx]));
                 self.idx += 1;
+            } else if self.space_count == 2 {
+                self.verStr.push(char::from(self.bytes[self.idx]));
+                self.idx += 1;
+            } else {
+                panic!("illegal state");
             }
         }
 
-        println!("{:?}", self);
 
-        if self.space_count >= 2 {
-            // HTTP/1.0
-        }
+        // FIX
+        self.terminated = true;
+
+        println!("debug: {:?}", self);
     }
     
     pub fn bytes(&self) -> Vec<u8> {
