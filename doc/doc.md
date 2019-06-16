@@ -67,6 +67,17 @@ OCTET          = <any 8-bit sequence of data>
 
 https://tools.ietf.org/html/rfc1945
 
+```
+Full-Request   = Request-Line             ; Section 5.1
+                *( General-Header        ; Section 4.3
+                 | Request-Header        ; Section 5.2
+                 | Entity-Header )       ; Section 7.1
+                CRLF
+                [ Entity-Body ]          ; Section 7.2
+
+Request-Line = Method SP Request-URI SP HTTP-Version CRLF
+```
+
 # HTTP/1.1
 
 https://tools.ietf.org/html/rfc2068
