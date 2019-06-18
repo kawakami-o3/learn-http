@@ -34,7 +34,7 @@ pub struct Request {
     method: Method,
     uri: String,
     version: Version,
-    verStr: String,
+    ver_str: String,
 
     idx: usize,
     space_count: u32,
@@ -48,7 +48,7 @@ pub fn new() -> Request {
         method: Method::NONE,
         uri: String::new(),
         version: Version::V0_9,
-        verStr: String::new(),
+        ver_str: String::new(),
 
         idx: 0,
         space_count: 0,
@@ -94,7 +94,7 @@ impl Request {
         // parse untile the first line break.
         loop {
             if "\r\n".as_bytes() == &self.bytes[self.idx..self.idx+2] {
-                match self.verStr.as_str() {
+                match self.ver_str.as_str() {
                     "HTTP/1.0" => {
                         self.version = Version::V1_0;
                     }
@@ -114,7 +114,7 @@ impl Request {
                 self.uri.push(char::from(self.bytes[self.idx]));
                 self.idx += 1;
             } else if self.space_count == 2 {
-                self.verStr.push(char::from(self.bytes[self.idx]));
+                self.ver_str.push(char::from(self.bytes[self.idx]));
                 self.idx += 1;
             } else {
                 panic!("illegal state");

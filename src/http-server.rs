@@ -9,8 +9,8 @@ use std::net::{TcpListener, TcpStream};
 
 const HOST: & str = "127.0.0.1:34254";
 
-const CR: u8 = 13;
-const LF: u8 = 10;
+//const CR: u8 = 13;
+//const LF: u8 = 10;
 
 fn create_response(request: http_request::Request) -> Vec<u8> {
     let res = request.bytes();
@@ -19,17 +19,17 @@ fn create_response(request: http_request::Request) -> Vec<u8> {
     return res;
 }
 
-fn is_terminated(request: &Vec<u8>) -> bool {
-    let len = request.len();
-
-    // too short
-    if len < 2 {
-        return false;
-    }
-
-    // for simple request.
-    return request[len-2..len] == [CR, LF];
-}
+//fn is_terminated(request: &Vec<u8>) -> bool {
+//    let len = request.len();
+//
+//    // too short
+//    if len < 2 {
+//        return false;
+//    }
+//
+//    // for simple request.
+//    return request[len-2..len] == [CR, LF];
+//}
 
 fn handle_request(stream: &mut TcpStream) {
     //let mut buf = [0; 128];
