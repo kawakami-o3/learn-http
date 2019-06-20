@@ -1,6 +1,6 @@
-
 mod http_request;
 
+use std::thread;
 use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream};
 //use crate::http_request;
@@ -31,7 +31,7 @@ fn create_response(request: http_request::Request) -> Vec<u8> {
 //    return request[len-2..len] == [CR, LF];
 //}
 
-fn handle_request(stream: &mut TcpStream) {
+fn handle_request(mut stream: TcpStream) {
     //let mut buf = [0; 128];
     let mut buf = vec![0; 1024];
 
@@ -72,6 +72,7 @@ fn main() -> std::io::Result<()> {
     let listener = TcpListener::bind(HOST)?;
 
     println!("starting...");
+    /*
     for stream in listener.incoming() {
         match stream {
             Ok(mut stream) => {
@@ -83,4 +84,12 @@ fn main() -> std::io::Result<()> {
         }
     }
     Ok(())
+    */
+
+    loop {
+        let (stream, _) = listener.accept()?;
+        thread::spawn(move || {
+            handle_request(stream);
+        });
+    }
 }
