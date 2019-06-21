@@ -90,3 +90,7 @@ https://tools.ietf.org/html/rfc7540
 
 https://developer.mozilla.org/ja/docs/Web/HTTP/Basics_of_HTTP/Evolution_of_HTTP
 
+
+https://yamitzky.hatenablog.com/entry/2016/05/13/204107
+
+https://httpbin.org/ip
