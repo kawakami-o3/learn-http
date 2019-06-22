@@ -36,6 +36,8 @@ pub struct Request {
     version: Version,
     ver_str: String,
 
+    rest: String,
+
     idx: usize,
     space_count: u32,
     terminated: bool,
@@ -49,6 +51,8 @@ pub fn new() -> Request {
         uri: String::new(),
         version: Version::V0_9,
         ver_str: String::new(),
+        
+        rest: String::new(),
 
         idx: 0,
         space_count: 0,
@@ -121,6 +125,15 @@ impl Request {
             }
         }
 
+        if self.version == Version::V0_9 {
+            self.terminated = true;
+            return;
+        }
+
+
+        for b in self.bytes[self.idx..].iter() {
+            self.rest.push(char::from(*b));
+        }
 
         // FIX
         self.terminated = true;
