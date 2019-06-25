@@ -5,8 +5,8 @@
 //const E: u8 = 69;
 //const T: u8 = 84;
 const SP: u8 = 32;
-//const CR: u8 = 13;
-//const LF: u8 = 10;
+const CR: u8 = 13;
+const LF: u8 = 10;
 
 //fn tokenize(content: Vec<u8>)
 //
@@ -61,75 +61,118 @@ pub fn new() -> Request {
 }
 
 impl Request {
+
+    /*
     pub fn is_terminated(& self) -> bool {
         return self.terminated;
     }
 
-    pub fn parse(&mut self, content: &mut Vec<u8>) {
+
+    fn back(&mut self, l: usize) {
+        self.idx -= l;
+    }
+
+    fn next(&mut self, l: usize) -> Option<&str> {
+        if self.bytes.len() < self.idx + l {
+            return None;
+        }
+        let s = Some(std::str::from_utf8(&self.bytes[self.idx..self.idx+l]).unwrap());
+        self.idx += l;
+        return s;
+    }
+    */
+
+    fn skip_space(&mut self) {
+        let mut l = 0;
+        while self.idx + l < self.bytes.len() {
+            match self.bytes[self.idx + l] {
+                SP | CR | LF => {
+                    l+=1;
+                }
+                _ => {
+                    break;
+                }
+            }
+        }
+        self.idx += l;
+    }
+
+    fn next_word(&mut self) -> Option<&str> {
+        self.skip_space();
+        let mut l = 1;
+        while self.idx + l < self.bytes.len() {
+            match self.bytes[self.idx + l] {
+                SP | CR | LF => {
+                    break;
+                }
+                _ => {
+                    l+=1;
+                }
+            }
+        }
+        if l == 0{
+            return None;
+        }
+
+        match std::str::from_utf8(&self.bytes[self.idx..self.idx+l]) {
+            Ok(s) => {
+                self.idx += l;
+                Some(s)
+            }
+            Err(e) => {
+                panic!(e);
+            }
+        }
+    }
+
+    pub fn parse(&mut self, content: &mut Vec<u8>) -> Result<(), String> {
+        if self.bytes.len() > 0 {
+            return Ok(()); // already done.
+        }
 
         self.bytes.append(content);
 
         if self.bytes.len() < 4 {
-            return;
+            return Err("The content is too short.".to_string());
         }
 
-        if self.method == Method::NONE {
-            if "GET".as_bytes() == &self.bytes[0..3] {
+        match self.next_word() {
+            Some("GET") => {
                 self.method = Method::GET;
-                self.idx = 3;
-            } else if "HEAD".as_bytes() == &self.bytes[0..4] {
+            }
+            Some("HEAD") => {
                 self.method = Method::HEAD;
-                self.idx = 4;
-            } else if "POST".as_bytes() == &self.bytes[0..4] {
+            }
+            Some("POST") => {
                 self.method = Method::POST;
-                self.idx = 4;
-            } else {
-                return;
+            }
+            m => {
+                return Err(format!("The content has an unknown method: {:?}", m));
             }
         }
 
-        if self.space_count == 0 {
-            if SP == self.bytes[self.idx] {
-                self.idx += 1;
-                self.space_count += 1;
+        match self.next_word() {
+            Some(s) => {
+                self.uri = s.to_string();
+            }
+            None => {
+                return Err("illegal state".to_string());
             }
         }
 
-        // parse untile the first line break.
-        loop {
-            if "\r\n".as_bytes() == &self.bytes[self.idx..self.idx+2] {
-                match self.ver_str.as_str() {
-                    "HTTP/1.0" => {
-                        self.version = Version::V1_0;
-                    }
-                    "HTTP/1.1" => {
-                        self.version = Version::V1_1;
-                    }
-                    _ => {
-                        self.version = Version::V0_9;
-                    }
+        match self.next_word() {
+                Some("HTTP/1.0") => {
+                    self.version = Version::V1_0;
                 }
-                self.idx += 2;
-                break;
-            } else if SP == self.bytes[self.idx] {
-                self.space_count += 1;
-                self.idx += 1;
-            } else if self.space_count == 1 {
-                self.uri.push(char::from(self.bytes[self.idx]));
-                self.idx += 1;
-            } else if self.space_count == 2 {
-                self.ver_str.push(char::from(self.bytes[self.idx]));
-                self.idx += 1;
-            } else {
-                panic!("illegal state");
-            }
+                Some("HTTP/1.1") => {
+                    self.version = Version::V1_1;
+                }
+                _ => {
+                    self.version = Version::V0_9;
+                    self.terminated = true;
+                    return Ok(());
+                }
         }
-
-        if self.version == Version::V0_9 {
-            self.terminated = true;
-            return;
-        }
-
 
         for b in self.bytes[self.idx..].iter() {
             self.rest.push(char::from(*b));
@@ -139,6 +182,7 @@ impl Request {
         self.terminated = true;
 
         println!("debug: {:?}", self);
+        return Ok(());
     }
     
     pub fn bytes(&self) -> Vec<u8> {

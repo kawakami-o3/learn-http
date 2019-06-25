@@ -2,7 +2,7 @@ mod http_request;
 
 use std::thread;
 use std::io::prelude::*;
-use std::net::{TcpListener, TcpStream};
+use std::net::{TcpListener, TcpStream, Shutdown};
 //use crate::http_request;
 //use self::http_request;
 
@@ -37,29 +37,27 @@ fn handle_request(mut stream: TcpStream) {
 
     let mut request = http_request::new();
 
-    loop {
-        match stream.read(&mut buf) {
-            Ok(n) => {
-                //println!("ok : {}\n{}", n, String::from_utf8(buf[0..n].to_vec()).unwrap());
-                //stream.write(&buf[0..n]).unwrap();
-                println!("> {}", n);
-                request.parse(&mut buf[0..n].to_vec());
-                if request.is_terminated() {
-                    break;
-                }
-                /*
-                if n < 2 {
-                    break;
-                } else if is_terminated(&requestBytes) {
-                    break;
-                }
-                */
-            }
-            Err(e) => {
-                println!("ERR: {:?}", e);
+    match stream.read(&mut buf) {
+        Ok(n) => {
+            if n == 0 {
+                println!("shutdown");
+                stream.shutdown(Shutdown::Both).unwrap();
                 return;
-                //stream.write("error\r\n".as_bytes()).unwrap();
             }
+
+            println!("> {} {:?}", n, buf[0..n].to_vec());
+            match request.parse(&mut buf[0..n].to_vec()) {
+                Ok(()) => {},
+                Err(e) => {
+                    println!("{}", e);
+                    stream.shutdown(Shutdown::Both).unwrap();
+                    return;
+                }
+            }
+        }
+        Err(e) => {
+            println!("ERR: {:?}", e);
+            return;
         }
     }
 

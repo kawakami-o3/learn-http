@@ -21,15 +21,16 @@ fn request_body() -> String {
 }
 
 fn main() -> std::io::Result<()> {
-    //let host = "127.0.0.1:34254";
+    let host = "127.0.0.1:34254";
     //let host = "www.google.com:80";
-    let host = "httpbin.org:80";
+    //let host = "httpbin.org:80";
     let mut stream = TcpStream::connect(host)?;
 
     // Ex.) curl 127.0.0.1:34254 --http1.0
     //let cnt = format!("GET / HTTP/1.0\r\nHost: {}\r\nUser-Agent: curl/7.58.0\r\nAccept: */*\r\n\r\n", host);
 
 
+    println!("sending...");
     stream.write(request_body().as_bytes())?;
     //let mut buf = vec![0; 1024*1024*1024];
     let mut buf = vec![0; 1024];
