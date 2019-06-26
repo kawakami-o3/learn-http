@@ -86,7 +86,8 @@ impl Request {
         let mut l = 0;
         while self.idx + l < self.bytes.len() {
             match self.bytes[self.idx + l] {
-                SP | CR | LF => {
+                //SP | CR | LF => {
+                SP => {
                     l+=1;
                 }
                 _ => {
@@ -100,9 +101,23 @@ impl Request {
     fn next_word(&mut self) -> Option<&str> {
         self.skip_space();
         let mut l = 1;
+        if self.idx + l >= self.bytes.len() {
+            return None;
+        }
         while self.idx + l < self.bytes.len() {
             match self.bytes[self.idx + l] {
-                SP | CR | LF => {
+                SP => {
+                    break;
+                }
+                CR => {
+                    if l == 1 {
+                        l+=1;
+                    } else {
+                        break;
+                    }
+                }
+                LF => {
+                    l+=1;
                     break;
                 }
                 _ => {
@@ -110,10 +125,9 @@ impl Request {
                 }
             }
         }
-        if l == 0{
-            return None;
-        }
 
+
+        println!("1> {} {} {}", self.bytes.len(), self.idx, l);
         match std::str::from_utf8(&self.bytes[self.idx..self.idx+l]) {
             Ok(s) => {
                 self.idx += l;
@@ -167,15 +181,20 @@ impl Request {
                 Some("HTTP/1.1") => {
                     self.version = Version::V1_1;
                 }
-                _ => {
+                Some("\r\n") => {
                     self.version = Version::V0_9;
                     self.terminated = true;
                     return Ok(());
                 }
+                a => {
+                    return Err(format!("invalid token: {:?}", a));
+                }
         }
 
-        for b in self.bytes[self.idx..].iter() {
-            self.rest.push(char::from(*b));
+        if self.idx < self.bytes.len() {
+            for b in self.bytes[self.idx..].iter() {
+                self.rest.push(char::from(*b));
+            }
         }
 
         // FIX

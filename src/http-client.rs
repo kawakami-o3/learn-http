@@ -2,13 +2,13 @@ use std::io::prelude::*;
 use std::net::TcpStream;
 
 fn request_body() -> String {
-    format!("GET /get HTTP/1.0\r\n\r\n")
+    //format!("GET /get HTTP/1.0\r\n\r\n")
 
     // Simple-Request
     //format!("GET http://{}/\r\n", host);
     //format!("GET http://www.google.com/\r\n", host);
     //format!("GET http://www.google.com/\r\n");
-    //format!("GET /index.html\r\n");
+    format!("GET /index.html\r\n")
     //format!("GET /index.html HTTP/1.0\r\n\r\n");
 
     // HTTP/1.0
