@@ -83,60 +83,66 @@ impl Request {
     */
 
     fn skip_space(&mut self) {
-        let mut l = 0;
-        while self.idx + l < self.bytes.len() {
-            match self.bytes[self.idx + l] {
+        let mut length = 0;
+        while self.idx + length < self.bytes.len() {
+            match self.bytes[self.idx + length] {
                 //SP | CR | LF => {
                 SP => {
-                    l+=1;
+                    length+=1;
                 }
                 _ => {
                     break;
                 }
             }
         }
-        self.idx += l;
+        self.idx += length;
     }
 
     fn next_word(&mut self) -> Option<&str> {
         self.skip_space();
-        let mut l = 1;
-        if self.idx + l >= self.bytes.len() {
+        let mut length = 1;
+        if self.idx + length >= self.bytes.len() {
             return None;
         }
-        while self.idx + l < self.bytes.len() {
-            match self.bytes[self.idx + l] {
+        while self.idx + length < self.bytes.len() {
+            match self.bytes[self.idx + length] {
                 SP => {
                     break;
                 }
                 CR => {
-                    if l == 1 {
-                        l+=1;
+                    if length == 1 {
+                        length += 1;
                     } else {
                         break;
                     }
                 }
                 LF => {
-                    l+=1;
+                    length += 1;
                     break;
                 }
                 _ => {
-                    l+=1;
+                    length +=1;
                 }
             }
         }
 
-
-        println!("1> {} {} {}", self.bytes.len(), self.idx, l);
-        match std::str::from_utf8(&self.bytes[self.idx..self.idx+l]) {
+        match std::str::from_utf8(&self.bytes[self.idx..self.idx+length]) {
             Ok(s) => {
-                self.idx += l;
+                self.idx += length;
                 Some(s)
             }
             Err(e) => {
                 panic!(e);
             }
         }
+    }
+
+    fn parse_header_entry(&mut self) -> Option<(&str, &str)> {
+
+        None
+        //Some(("", ""))
+        //let mut length = 0;
+        //while self.idx + length < self.bytes.len() {
     }
 
     pub fn parse(&mut self, content: &mut Vec<u8>) -> Result<(), String> {
