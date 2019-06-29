@@ -4,9 +4,50 @@
 //const G: u8 = 71;
 //const E: u8 = 69;
 //const T: u8 = 84;
-const SP: u8 = 32;
 const CR: u8 = 13;
 const LF: u8 = 10;
+const SP: u8 = 32;
+const HT: u8 = 9;
+const DQ: u8 = 34;
+
+fn is_char(u: u8) -> bool {
+    return u <= 127
+}
+
+fn is_ctl(u: u8) -> bool {
+    return u == 127 || u <= 31
+}
+
+fn is_tspecials(u: u8) -> bool {
+    let ts = vec![
+        40, // "("
+        41, // ")"
+        60, // "<"
+        62, // ">"
+        64, // "@"
+        44, // ","
+        59, // ";"
+        58, // ":"
+        92, // "\\"
+        34, // "\""
+        47, // "/"
+        91, // "["
+        93, // "]"
+        63, // "?"
+        61, // "="
+        123, // "{"
+        125, // "}"
+        SP,
+        HT
+    ];
+
+    for i in ts {
+        if i == u {
+            return false;
+        }
+    }
+    return false;
+}
 
 //fn tokenize(content: Vec<u8>)
 //
