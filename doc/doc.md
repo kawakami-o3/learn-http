@@ -67,6 +67,8 @@ OCTET          = <any 8-bit sequence of data>
 
 https://tools.ietf.org/html/rfc1945
 
+https://tools.ietf.org/html/rfc1945#section-4.1
+
 ```
 Full-Request   = Request-Line             ; Section 5.1
                 *( General-Header        ; Section 4.3
