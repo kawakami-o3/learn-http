@@ -80,6 +80,19 @@ Full-Request   = Request-Line             ; Section 5.1
 Request-Line = Method SP Request-URI SP HTTP-Version CRLF
 ```
 
+```
+       LWS            = [CRLF] 1*( SP | HT )
+
+      token          = 1*<any CHAR except CTLs or tspecials>
+
+       tspecials      = "(" | ")" | "<" | ">" | "@"
+                      | "," | ";" | ":" | "\" | <">
+                      | "/" | "[" | "]" | "?" | "="
+                      | "{" | "}" | SP | HT
+```
+
+
+
 # HTTP/1.1
 
 https://tools.ietf.org/html/rfc2068
