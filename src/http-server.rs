@@ -69,7 +69,7 @@ fn handle_request(mut stream: TcpStream) {
 fn main() -> std::io::Result<()> {
     let listener = TcpListener::bind(HOST)?;
 
-    println!("starting...");
+    println!("starting ... {}", HOST);
     /*
     for stream in listener.incoming() {
         match stream {

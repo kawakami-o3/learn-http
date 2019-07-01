@@ -18,7 +18,7 @@ fn is_ctl(u: u8) -> bool {
     return u == 127 || u <= 31
 }
 
-fn is_tspecials(u: u8) -> bool {
+fn is_tspecial(u: u8) -> bool {
     let ts = vec![
         40, // "("
         41, // ")"
@@ -43,7 +43,7 @@ fn is_tspecials(u: u8) -> bool {
 
     for i in ts {
         if i == u {
-            return false;
+            return true;
         }
     }
     return false;
@@ -75,13 +75,19 @@ pub struct Request {
     method: Method,
     uri: String,
     version: Version,
-    ver_str: String,
+    header: Vec<HeaderEntry>,
 
     rest: String,
 
     idx: usize,
     space_count: u32,
     terminated: bool,
+}
+
+#[derive(Clone, Debug)]
+pub struct HeaderEntry {
+    field_name: String,
+    field_value: String,
 }
 
 pub fn new() -> Request {
@@ -91,7 +97,7 @@ pub fn new() -> Request {
         method: Method::NONE,
         uri: String::new(),
         version: Version::V0_9,
-        ver_str: String::new(),
+        header: Vec::new(),
         
         rest: String::new(),
 
@@ -178,12 +184,163 @@ impl Request {
         }
     }
 
-    fn parse_header_entry(&mut self) -> Option<(&str, &str)> {
+
+    fn next_token(&mut self) -> Option<&str> {
+        let mut length = 0;
+        while self.idx + length < self.bytes.len() {
+            // token = 1*<any CHAR except CTLs or tspecials>
+            let u = self.bytes[self.idx + length];
+            if is_char(u) && !is_ctl(u) && !is_tspecial(u) {
+                length += 1;
+            } else {
+                break;
+            }
+        }
+
+        match std::str::from_utf8(&self.bytes[self.idx..self.idx+length]) {
+            Ok(s) => {
+                self.idx += length;
+                Some(s)
+            }
+            Err(e) => {
+                panic!(e);
+            }
+        }
+    }
+
+    fn try_lws(&self) -> Option<&str> {
+        let u = self.bytes[self.idx];
+        if u == SP || u == HT {
+            let length = 1;
+            return match std::str::from_utf8(&self.bytes[self.idx-length..self.idx]) {
+                Ok(s) => Some(s),
+                Err(_) => None,
+            };
+        }
+        if self.idx + 2 < self.bytes.len() {
+            let v = self.bytes[self.idx + 1];
+            let w = self.bytes[self.idx + 2];
+            if v == LF && (w == SP || w == HT) {
+                let length = 3;
+                return match std::str::from_utf8(&self.bytes[self.idx-length..self.idx]) {
+                    Ok(s) => Some(s),
+                    Err(_) => None,
+                };
+            }
+
+            /*
+            if v == LF && (w == SP || w == HT) {
+                let mut length = 3;
+                while  self.idx + length < self.bytes.len() {
+                    let u = self.bytes[self.idx + length];
+                    if u == SP || u == HT {
+                        length += 1;
+                    } else {
+                        break;
+                    }
+                }
+
+                return match std::str::from_utf8(&self.bytes[self.idx..self.idx+length]) {
+                    Ok(s) => {
+                        self.idx += length;
+                        Some(s)
+                    }
+                    Err(_) => {
+                        None
+                    }
+                };
+            }
+            */
+        }
+        return None;
+    }
+
+    fn parse_header_field_value(&mut self) -> Option<&str> {
+        // field-value    = *( field-content | LWS )
+        //
+        // LWS            = [CRLF] 1*( SP | HT )
+        //
+        // field-content  = <the OCTETs making up the field-value
+        //                  and consisting of either *TEXT or combinations
+        //                  of token, tspecials, and quoted-string>
+        //
+        // TEXT           = <any OCTET except CTLs,
+        //                  but including LWS>
+        //
+        // quoted-string  = ( <"> *(qdtext) <"> )
+        //
+        // qdtext         = <any CHAR except <"> and CTLs,
+        //                  but including LWS>
+
+        let is_quoted_string = self.bytes[self.idx] == DQ;
+
+
+        if is_quoted_string {
+            return Some("\"\"") // TODO
+        } else {
+            let mut length = 0;
+            while self.idx + length < self.bytes.len() {
+                let u = self.bytes[self.idx + length];
+                if u == CR || u == SP || u == HT {
+                    match self.try_lws() {
+                        Some(s) => {
+                            length += s.len();
+                        }
+                        None => {
+                            break;
+                        }
+                    }
+                } else if is_ctl(u) {
+                    break;
+                } else {
+                    length += 1;
+                }
+            }
+
+            if length > 0 {
+                self.idx += length;
+                return match std::str::from_utf8(&self.bytes[self.idx-length..self.idx]) {
+                    Ok(s) => Some(s),
+                    Err(_) => None,
+                };
+            }
+
+        }
+
 
         None
-        //Some(("", ""))
-        //let mut length = 0;
-        //while self.idx + length < self.bytes.len() {
+    }
+
+    fn parse_header_entry(&mut self) -> Result<(), String> {
+        // HTTP-header = field-name ":" [ field-value ] CRLF
+
+        let mut header_entry = HeaderEntry{
+            field_name: String::new(),
+            field_value: String::new(),
+        };
+        match self.next_token() {
+            Some(s) => {
+                header_entry.field_name = s.to_string();
+            }
+            None => {
+                return Err("Error: filed name of request header.".to_string());
+            }
+        };
+
+        self.idx += 1; // Expect ':'.
+
+        match self.parse_header_field_value() {
+            Some(s) => {
+                header_entry.field_value = s.to_string();
+            }
+            None => {
+                return Err("Error: filed value of request header.".to_string());
+            }
+        };
+
+        self.header.push(header_entry);
+
+        Ok(())
     }
 
     pub fn parse(&mut self, content: &mut Vec<u8>) -> Result<(), String> {
@@ -238,10 +395,15 @@ impl Request {
                 }
         }
 
+        self.idx += 2; // CR LF
+
         if self.idx < self.bytes.len() {
             for b in self.bytes[self.idx..].iter() {
                 self.rest.push(char::from(*b));
             }
+        }
+
+        while let Ok(()) = self.parse_header_entry() {
         }
 
         // FIX
