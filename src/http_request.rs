@@ -208,6 +208,16 @@ impl Request {
         }
     }
 
+    fn try_crlf(&self) -> Option<&str> {
+        if self.idx + 1 < self.bytes.len() {
+            if self.bytes[self.idx] == CR && self.bytes[self.idx+1] == LF {
+                return Some("\r\n");
+            }
+        }
+
+        None
+    }
+
     fn try_lws(&self) -> Option<&str> {
         let u = self.bytes[self.idx];
         if u == SP || u == HT {
@@ -287,10 +297,12 @@ impl Request {
                             length += s.len();
                         }
                         None => {
+                            length -= 1;
                             break;
                         }
                     }
                 } else if is_ctl(u) {
+                    length -= 1;
                     break;
                 } else {
                     length += 1;
@@ -338,6 +350,8 @@ impl Request {
             }
         };
 
+        self.idx += 2; // Expect "CR LF".
+        println!("entry: {:?}", header_entry);
         self.header.push(header_entry);
 
         Ok(())
@@ -404,6 +418,10 @@ impl Request {
         }
 
         while let Ok(()) = self.parse_header_entry() {
+            let crlf = self.try_crlf();
+            if crlf != None {
+                break;
+            }
         }
 
         // FIX
