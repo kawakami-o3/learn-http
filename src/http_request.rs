@@ -77,11 +77,10 @@ pub struct Request {
     version: Version,
     header: Vec<HeaderEntry>,
 
-    rest: String,
+    entity_body: String,
 
     idx: usize,
     space_count: u32,
-    terminated: bool,
 }
 
 #[derive(Clone, Debug)]
@@ -99,22 +98,16 @@ pub fn new() -> Request {
         version: Version::V0_9,
         header: Vec::new(),
         
-        rest: String::new(),
+        entity_body: String::new(),
 
         idx: 0,
         space_count: 0,
-        terminated: false,
     }
 }
 
 impl Request {
 
     /*
-    pub fn is_terminated(& self) -> bool {
-        return self.terminated;
-    }
-
-
     fn back(&mut self, l: usize) {
         self.idx -= l;
     }
@@ -323,6 +316,7 @@ impl Request {
         None
     }
 
+    // TODO Divide headers into General-Header, Request-Header, Entity-Header.
     fn parse_header_entry(&mut self) -> Result<(), String> {
         // HTTP-header = field-name ":" [ field-value ] CRLF
 
@@ -351,7 +345,6 @@ impl Request {
         };
 
         self.idx += 2; // Expect "CR LF".
-        println!("entry: {:?}", header_entry);
         self.header.push(header_entry);
 
         Ok(())
@@ -401,7 +394,6 @@ impl Request {
                 }
                 Some("\r\n") => {
                     self.version = Version::V0_9;
-                    self.terminated = true;
                     return Ok(());
                 }
                 a => {
@@ -411,23 +403,23 @@ impl Request {
 
         self.idx += 2; // CR LF
 
-        if self.idx < self.bytes.len() {
-            for b in self.bytes[self.idx..].iter() {
-                self.rest.push(char::from(*b));
-            }
-        }
-
+        // Header Fields
         while let Ok(()) = self.parse_header_entry() {
             let crlf = self.try_crlf();
             if crlf != None {
+                // the end of header fields.
+                self.idx += 2;
                 break;
             }
         }
 
-        // FIX
-        self.terminated = true;
+        // Entity-Body
+        if self.idx < self.bytes.len() {
+            for b in self.bytes[self.idx..].iter() {
+                self.entity_body.push(char::from(*b));
+            }
+        }
 
-        println!("debug: {:?}", self);
         return Ok(());
     }
     
