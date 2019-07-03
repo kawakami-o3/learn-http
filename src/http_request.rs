@@ -1,9 +1,4 @@
 
-//use std::io::Cursor;
-
-//const G: u8 = 71;
-//const E: u8 = 69;
-//const T: u8 = 84;
 const CR: u8 = 13;
 const LF: u8 = 10;
 const SP: u8 = 32;
@@ -29,7 +24,7 @@ fn is_tspecial(u: u8) -> bool {
         59, // ";"
         58, // ":"
         92, // "\\"
-        34, // "\""
+        DQ, // "\""
         47, // "/"
         91, // "["
         93, // "]"
@@ -48,9 +43,6 @@ fn is_tspecial(u: u8) -> bool {
     }
     return false;
 }
-
-//fn tokenize(content: Vec<u8>)
-//
 
 #[derive(PartialEq, Clone, Debug)]
 enum Version {
@@ -106,21 +98,6 @@ pub fn new() -> Request {
 }
 
 impl Request {
-
-    /*
-    fn back(&mut self, l: usize) {
-        self.idx -= l;
-    }
-
-    fn next(&mut self, l: usize) -> Option<&str> {
-        if self.bytes.len() < self.idx + l {
-            return None;
-        }
-        let s = Some(std::str::from_utf8(&self.bytes[self.idx..self.idx+l]).unwrap());
-        self.idx += l;
-        return s;
-    }
-    */
 
     fn skip_space(&mut self) {
         let mut length = 0;
@@ -230,30 +207,6 @@ impl Request {
                     Err(_) => None,
                 };
             }
-
-            /*
-            if v == LF && (w == SP || w == HT) {
-                let mut length = 3;
-                while  self.idx + length < self.bytes.len() {
-                    let u = self.bytes[self.idx + length];
-                    if u == SP || u == HT {
-                        length += 1;
-                    } else {
-                        break;
-                    }
-                }
-
-                return match std::str::from_utf8(&self.bytes[self.idx..self.idx+length]) {
-                    Ok(s) => {
-                        self.idx += length;
-                        Some(s)
-                    }
-                    Err(_) => {
-                        None
-                    }
-                };
-            }
-            */
         }
         return None;
     }
@@ -275,43 +228,38 @@ impl Request {
         // qdtext         = <any CHAR except <"> and CTLs,
         //                  but including LWS>
 
-        let is_quoted_string = self.bytes[self.idx] == DQ;
 
+        // TODO combinations of token, tspecials, and quoted-string
 
-        if is_quoted_string {
-            return Some("\"\"") // TODO
-        } else {
-            let mut length = 0;
-            while self.idx + length < self.bytes.len() {
-                let u = self.bytes[self.idx + length];
-                if u == CR || u == SP || u == HT {
-                    match self.try_lws() {
-                        Some(s) => {
-                            length += s.len();
-                        }
-                        None => {
-                            length -= 1;
-                            break;
-                        }
+        // *TEXT
+        let mut length = 0;
+        while self.idx + length < self.bytes.len() {
+            let u = self.bytes[self.idx + length];
+            if u == CR || u == SP || u == HT {
+                match self.try_lws() {
+                    Some(s) => {
+                        length += s.len();
                     }
-                } else if is_ctl(u) {
-                    length -= 1;
-                    break;
-                } else {
-                    length += 1;
+                    None => {
+                        length -= 1;
+                        break;
+                    }
                 }
+            } else if is_ctl(u) {
+                length -= 1;
+                break;
+            } else {
+                length += 1;
             }
-
-            if length > 0 {
-                self.idx += length;
-                return match std::str::from_utf8(&self.bytes[self.idx-length..self.idx]) {
-                    Ok(s) => Some(s),
-                    Err(_) => None,
-                };
-            }
-
         }
 
+        if length > 0 {
+            self.idx += length;
+            return match std::str::from_utf8(&self.bytes[self.idx-length..self.idx]) {
+                Ok(s) => Some(s),
+                Err(_) => None,
+            };
+        }
 
         None
     }
