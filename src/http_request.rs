@@ -45,10 +45,20 @@ fn is_tspecial(u: u8) -> bool {
 }
 
 #[derive(PartialEq, Clone, Debug)]
-enum Version {
+pub enum Version {
     V0_9,
     V1_0,
     V1_1,
+}
+
+impl Version {
+    pub fn to_string(&self) -> String {
+        match self {
+            Version::V0_9 => "0.9".to_string(), // The server would never generate this.
+            Version::V1_0 => "1.0".to_string(),
+            Version::V1_1 => "1.1".to_string(),
+        }
+    }
 }
 
 #[derive(PartialEq, Clone, Debug)]
@@ -66,7 +76,7 @@ pub struct Request {
 
     method: Method,
     uri: String,
-    version: Version,
+    pub version: Version,
     header: Vec<HeaderEntry>,
 
     entity_body: String,

@@ -1,38 +1,29 @@
 mod http_request;
+mod http_response;
 
 use std::thread;
 use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream, Shutdown};
-//use crate::http_request;
+use crate::http_request::*;
+use crate::http_response::*;
 //use self::http_request;
 
 
 const HOST: & str = "127.0.0.1:34254";
 
-//const CR: u8 = 13;
-//const LF: u8 = 10;
 
-fn create_response(request: http_request::Request) -> Vec<u8> {
+fn handle(request: &Request, response: &mut Response) -> Result<(), String>{
+    response.version = request.version.clone();
+    /*
     let res = request.bytes();
     //println!("{:?}", http_request::parse(request));
     //println!("{:?}", parse(request));
     return res;
+    */
+    Ok(())
 }
 
-//fn is_terminated(request: &Vec<u8>) -> bool {
-//    let len = request.len();
-//
-//    // too short
-//    if len < 2 {
-//        return false;
-//    }
-//
-//    // for simple request.
-//    return request[len-2..len] == [CR, LF];
-//}
-
 fn handle_request(mut stream: TcpStream) {
-    //let mut buf = [0; 128];
     let mut buf = vec![0; 1024];
 
     let mut request = http_request::new();
@@ -49,21 +40,31 @@ fn handle_request(mut stream: TcpStream) {
             match request.parse(&mut buf[0..n].to_vec()) {
                 Ok(()) => {},
                 Err(e) => {
-                    println!("{}", e);
+                    println!("{}", e); // TODO error response
                     stream.shutdown(Shutdown::Both).unwrap();
                     return;
                 }
             }
         }
         Err(e) => {
-            println!("ERR: {:?}", e);
+            println!("ERR: {:?}", e); // TODO error response
+            stream.shutdown(Shutdown::Both).unwrap();
             return;
         }
     }
 
-    let response = create_response(request);
-    println!("{:?}", String::from_utf8(response.clone()));
-    stream.write(response.as_slice()).unwrap();
+    let response = &mut http_response::new();
+    match handle(&request, response) {
+        Ok(()) => {
+            println!("{:?}", String::from_utf8(response.to_bytes()));
+            stream.write(response.to_bytes().as_slice()).unwrap();
+        }
+        Err(e) => {
+            println!("ERR: {:?}", e); // TODO error response
+            stream.shutdown(Shutdown::Both).unwrap();
+            return;
+        }
+    }
 }
 
 fn main() -> std::io::Result<()> {
