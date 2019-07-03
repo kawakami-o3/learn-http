@@ -92,9 +92,25 @@ Request-Line = Method SP Request-URI SP HTTP-Version CRLF
 ```
 
 
-## response
+## Response
 
 https://tools.ietf.org/html/rfc1945#section-6
+
+
+```
+       Response        = Simple-Response | Full-Response
+
+       Simple-Response = [ Entity-Body ]
+
+       Full-Response   = Status-Line             ; Section 6.1
+                         *( General-Header       ; Section 4.3
+                          | Response-Header      ; Section 6.2
+                          | Entity-Header )      ; Section 7.1
+                         CRLF
+                         [ Entity-Body ]         ; Section 7.2
+```
+
+
 
 
 # HTTP/1.1
