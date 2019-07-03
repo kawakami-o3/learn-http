@@ -92,6 +92,10 @@ Request-Line = Method SP Request-URI SP HTTP-Version CRLF
 ```
 
 
+## response
+
+https://tools.ietf.org/html/rfc1945#section-6
+
 
 # HTTP/1.1
 
