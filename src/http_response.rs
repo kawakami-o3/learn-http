@@ -29,12 +29,16 @@ pub mod status {
 pub struct Response {
     pub version: Version,
     pub status: status::Code,
+
+    pub entity_body: String,
 }
 
 pub fn new() -> Response {
     Response {
         version: Version::V0_9,
         status: status::OK,
+
+        entity_body: String::new(),
     }
 }
 
@@ -46,6 +50,9 @@ impl Response {
         ret.push_str(format!("HTTP/{} {}\r\n", self.version.to_string(), status::to_string(self.status)).as_str());
 
         ret.push_str("\r\n");
+
+        ret.push_str(self.entity_body.as_str());
+
         return Vec::from(ret.as_bytes());
     }
 }

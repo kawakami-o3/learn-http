@@ -12,7 +12,18 @@ const HOST: & str = "127.0.0.1:34254";
 
 fn handle(request: &Request, response: &mut Response) -> Result<(), String>{
     response.version = request.version.clone();
-    response.status = status::OK;
+
+    match String::from_utf8(request.bytes()) {
+        Ok(s) => {
+            // echo response
+            response.entity_body.push_str(s.as_str());
+        }
+        Err(_) => {
+            response.status = status::INTERNAL_SERVER_ERROR;
+        }
+    }
+
+
     Ok(())
 }
 
