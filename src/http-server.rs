@@ -6,20 +6,13 @@ use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream, Shutdown};
 use crate::http_request::*;
 use crate::http_response::*;
-//use self::http_request;
 
 
 const HOST: & str = "127.0.0.1:34254";
 
-
 fn handle(request: &Request, response: &mut Response) -> Result<(), String>{
     response.version = request.version.clone();
-    /*
-    let res = request.bytes();
-    //println!("{:?}", http_request::parse(request));
-    //println!("{:?}", parse(request));
-    return res;
-    */
+    response.status = status::OK;
     Ok(())
 }
 
