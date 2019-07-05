@@ -7,7 +7,7 @@ use std::net::{TcpListener, TcpStream, Shutdown};
 use crate::http_request::*;
 use crate::http_response::*;
 
-
+// TODO configurable
 const HOST: & str = "127.0.0.1:34254";
 const SERVER_NAME: & str = "Hoge/0.1 www/0.1";
 
