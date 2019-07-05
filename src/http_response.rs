@@ -83,6 +83,7 @@ impl Response {
         // Header
         for (k, v) in &self.header {
             ret.push_str(format!("{}: {}", k, v).as_str());
+            ret.push_str("\r\n");
         }
 
         ret.push_str("\r\n");
