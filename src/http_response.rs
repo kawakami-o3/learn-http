@@ -70,6 +70,10 @@ impl Response {
         self.status = (id, phrase);
     }
 
+    pub fn set_server_name(&mut self, name: &'static str) {
+        self.header.insert("Server".to_string(), name.to_string());
+    }
+
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut ret = String::new();
 

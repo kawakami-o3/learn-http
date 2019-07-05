@@ -9,10 +9,12 @@ use crate::http_response::*;
 
 
 const HOST: & str = "127.0.0.1:34254";
+const SERVER_NAME: & str = "Hoge/0.1 www/0.1";
 
 fn handle(request: &Request, response: &mut Response) -> Result<(), String>{
     response.version = request.version.clone();
     response.host = HOST;
+    response.set_server_name(SERVER_NAME);
 
     match String::from_utf8(request.bytes()) {
         Ok(s) => {
