@@ -1,6 +1,7 @@
 
 use crate::http_request::*;
 
+#[allow(dead_code)]
 pub mod status {
     pub type Code = (isize, &'static str);
 
@@ -43,11 +44,23 @@ pub fn new() -> Response {
 }
 
 impl Response {
+
+    fn status_line(&self) -> String {
+        // Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
+        //               "HTTP/" 1*DIGIT "." 1*DIGIT SP 3DIGIT SP
+        format!("HTTP/{} {}\r\n", self.version.to_string(), status::to_string(self.status))
+    }
+
+    #[allow(dead_code)]
+    pub fn set_extention_status(&mut self, id: isize, phrase: &'static str) {
+        self.status = (id, phrase);
+    }
+
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut ret = String::new();
 
         // Status-Line
-        ret.push_str(format!("HTTP/{} {}\r\n", self.version.to_string(), status::to_string(self.status)).as_str());
+        ret.push_str(self.status_line().as_str());
 
         ret.push_str("\r\n");
 
