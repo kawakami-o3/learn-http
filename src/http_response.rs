@@ -1,9 +1,11 @@
 
+use std::collections::HashMap;
 use crate::http_request::*;
 
 #[allow(dead_code)]
 pub mod status {
     pub type Code = (isize, &'static str);
+    pub type Code3 = Code;
 
     pub fn to_string(c: Code) -> String {
         format!("{} {}", c.0, c.1)
@@ -13,9 +15,9 @@ pub mod status {
     pub const CREATED: Code = (201, "Created");
     pub const ACCEPTED: Code = (202, "Accepted");
     pub const NO_CONTENT: Code = (204, "No Content");
-    pub const MOVED_PERMANENTLY: Code = (301, "Moved Permanently");
-    pub const MOVED_TEMPORARILY: Code = (302, "Moved Temporarily");
-    pub const NOT_MODIFIED: Code = (304, "Not Modified");
+    pub const MOVED_PERMANENTLY: Code3 = (301, "Moved Permanently");
+    pub const MOVED_TEMPORARILY: Code3 = (302, "Moved Temporarily");
+    pub const NOT_MODIFIED: Code3 = (304, "Not Modified");
     pub const BAD_REQUEST: Code = (400, "Bad Request");
     pub const UNAUTHORIZED: Code = (401, "Unauthorized");
     pub const FORBIDDEN: Code = (403, "Forbidden");
@@ -30,6 +32,9 @@ pub mod status {
 pub struct Response {
     pub version: Version,
     pub status: status::Code,
+    pub host: &'static str,
+    pub path: String,
+    pub header: HashMap<String, String>,
 
     pub entity_body: String,
 }
@@ -38,6 +43,9 @@ pub fn new() -> Response {
     Response {
         version: Version::V0_9,
         status: status::OK,
+        host: "",
+        path: String::new(),
+        header: HashMap::new(),
 
         entity_body: String::new(),
     }
@@ -52,6 +60,12 @@ impl Response {
     }
 
     #[allow(dead_code)]
+    pub fn set_location(&mut self, status: status::Code3, absolute_uri: String) {
+        self.status = status;
+        self.header.insert("Location".to_string(), absolute_uri);
+    }
+
+    #[allow(dead_code)]
     pub fn set_extention_status(&mut self, id: isize, phrase: &'static str) {
         self.status = (id, phrase);
     }
@@ -61,6 +75,11 @@ impl Response {
 
         // Status-Line
         ret.push_str(self.status_line().as_str());
+
+        // Header
+        for (k, v) in &self.header {
+            ret.push_str(format!("{}: {}", k, v).as_str());
+        }
 
         ret.push_str("\r\n");
 

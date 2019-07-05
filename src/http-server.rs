@@ -12,6 +12,7 @@ const HOST: & str = "127.0.0.1:34254";
 
 fn handle(request: &Request, response: &mut Response) -> Result<(), String>{
     response.version = request.version.clone();
+    response.host = HOST;
 
     match String::from_utf8(request.bytes()) {
         Ok(s) => {
