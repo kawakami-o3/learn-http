@@ -5,6 +5,7 @@ authors = ["kawakami <kawakami.ozone@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+chrono = "0.4"
 
 [[bin]]
 name = "http-server"

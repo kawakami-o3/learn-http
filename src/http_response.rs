@@ -1,5 +1,6 @@
 
 use std::collections::HashMap;
+use chrono::Local;
 use crate::http_request::*;
 
 #[allow(dead_code)]
@@ -40,7 +41,7 @@ pub struct Response {
 }
 
 pub fn new() -> Response {
-    Response {
+    let mut res = Response {
         version: Version::V0_9,
         status: status::OK,
         host: "",
@@ -48,10 +49,18 @@ pub fn new() -> Response {
         header: HashMap::new(),
 
         entity_body: String::new(),
-    }
+    };
+
+    let date_str = Local::now().to_rfc2822();
+    res.add_header("Date", format!("{} GMT", &date_str[..date_str.len()-6]));
+    return res;
 }
 
 impl Response {
+
+    fn add_header(&mut self, name: &str, value: String) {
+        self.header.insert(name.to_string(), value);
+    }
 
     fn status_line(&self) -> String {
         // Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
@@ -61,6 +70,7 @@ impl Response {
 
     #[allow(dead_code)]
     pub fn set_location(&mut self, status: status::Code3, absolute_uri: String) {
+        // Location       = "Location" ":" absoluteURI
         self.status = status;
         self.header.insert("Location".to_string(), absolute_uri);
     }
@@ -71,8 +81,11 @@ impl Response {
     }
 
     pub fn set_server_name(&mut self, name: &'static str) {
+        // Server         = "Server" ":" 1*( product | comment )
         self.header.insert("Server".to_string(), name.to_string());
     }
+
+    // TODO WWW-Authenticate
 
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut ret = String::new();
