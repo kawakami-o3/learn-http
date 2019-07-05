@@ -110,7 +110,11 @@ https://tools.ietf.org/html/rfc1945#section-6
                          [ Entity-Body ]         ; Section 7.2
 ```
 
-
+```
+       Response-Header = Location                ; Section 10.11
+                       | Server                  ; Section 10.14
+                       | WWW-Authenticate        ; Section 10.16
+```
 
 
 # HTTP/1.1
