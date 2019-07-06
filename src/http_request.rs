@@ -1,3 +1,4 @@
+use crate::method;
 
 const CR: u8 = 13;
 const LF: u8 = 10;
@@ -61,20 +62,12 @@ impl Version {
     }
 }
 
-#[derive(PartialEq, Clone, Debug)]
-enum Method {
-    NONE,
-    GET,
-    HEAD,
-    POST,
-}
-
 #[derive(Clone, Debug)]
 pub struct Request {
     //bytes: Cursor<Vec<u8>>,
     bytes: Vec<u8>,
 
-    method: Method,
+    method: method::Method,
     uri: String,
     pub version: Version,
     header: Vec<HeaderEntry>,
@@ -95,7 +88,7 @@ pub fn new() -> Request {
     Request {
         //bytes: Cursor::new(Vec::new()),
         bytes: Vec::new(),
-        method: Method::NONE,
+        method: method::GET,
         uri: String::new(),
         version: Version::V0_9,
         header: Vec::new(),
@@ -321,13 +314,13 @@ impl Request {
 
         match self.next_word() {
             Some("GET") => {
-                self.method = Method::GET;
+                self.method = method::GET;
             }
             Some("HEAD") => {
-                self.method = Method::HEAD;
+                self.method = method::HEAD;
             }
             Some("POST") => {
-                self.method = Method::POST;
+                self.method = method::POST;
             }
             m => {
                 return Err(format!("The content has an unknown method: {:?}", m));
