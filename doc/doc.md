@@ -117,6 +117,22 @@ https://tools.ietf.org/html/rfc1945#section-6
 ```
 
 
+https://tools.ietf.org/html/rfc1945#section-7.1
+
+```
+       Entity-Header  = Allow                    ; Section 10.1
+                      | Content-Encoding         ; Section 10.3
+                      | Content-Length           ; Section 10.4
+                      | Content-Type             ; Section 10.5
+                      | Expires                  ; Section 10.7
+                      | Last-Modified            ; Section 10.10
+                      | extension-header
+
+       extension-header = HTTP-header
+```
+
+
+
 # HTTP/1.1
 
 https://tools.ietf.org/html/rfc2068
