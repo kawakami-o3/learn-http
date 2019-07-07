@@ -2,6 +2,7 @@
 use std::collections::HashMap;
 use chrono::Local;
 use crate::http_request::*;
+use crate::method;
 
 #[allow(dead_code)]
 pub mod status {
@@ -78,6 +79,16 @@ impl Response {
     #[allow(dead_code)]
     pub fn set_extention_status(&mut self, id: isize, phrase: &'static str) {
         self.status = (id, phrase);
+    }
+
+    #[allow(dead_code)]
+    pub fn allow(&mut self, m: method::Method) {
+        let value = match self.header.get("Allow") {
+            Some(s) => format!("{}, {}", s, m),
+            None => m.to_string(),
+        };
+
+        self.header.insert("Allow".to_string(), value);
     }
 
     pub fn set_server_name(&mut self, name: &'static str) {
