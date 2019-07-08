@@ -15,7 +15,7 @@ Run client
 # Features
 
 * Configuration
-  * [ ] Content root
+  * [x] Content root
   * [x] Host's IP address
   * [x] Listen port
   * [x] SERVER header
