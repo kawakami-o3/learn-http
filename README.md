@@ -24,4 +24,5 @@ Run client
   * [ ] Allow response header
   
 * [ ] WWW-authenticate
+* [ ] Pragma header
   
