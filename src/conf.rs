@@ -33,12 +33,18 @@ pub fn server() -> String {
     })
 }
 
+pub fn root() -> String {
+    CONF.with(|c| {
+        c.borrow().root.clone()
+    })
+}
 
 #[derive(Clone, Deserialize)]
 pub struct ServerConf {
     pub ip: String,
     pub port: String,
     pub server: String,
+    pub root: String,
 }
 
 fn new_conf() -> ServerConf {
@@ -46,6 +52,7 @@ fn new_conf() -> ServerConf {
         ip: String::new(),
         port: String::new(),
         server: String::new(),
+        root: String::new(),
     }
 }
 

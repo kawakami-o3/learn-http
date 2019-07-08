@@ -68,7 +68,7 @@ pub struct Request {
     bytes: Vec<u8>,
 
     method: method::Method,
-    uri: String,
+    pub uri: String,
     pub version: Version,
     header: Vec<HeaderEntry>,
 

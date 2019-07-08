@@ -4,6 +4,7 @@ mod method;
 mod http_request;
 mod http_response;
 
+use std::fs::File;
 use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream, Shutdown};
 use std::thread;
@@ -20,13 +21,40 @@ fn handle(request: &Request, response: &mut Response) -> Result<(), String> {
     response.set_host(format!("{}:{}", conf::ip(), conf::port()));
     response.set_server(conf::server());
 
-    match String::from_utf8(request.bytes()) {
-        Ok(s) => {
-            // echo response
-            response.entity_body.push_str(s.as_str());
+    match request.uri.as_str() {
+        "/debug" => {
+            match String::from_utf8(request.bytes()) {
+                Ok(s) => {
+                    // echo response
+                    response.entity_body.push_str(s.as_str());
+                }
+                Err(_) => {
+                    response.status = status::INTERNAL_SERVER_ERROR;
+                }
+            }
         }
-        Err(_) => {
-            response.status = status::INTERNAL_SERVER_ERROR;
+        uri => {
+            let access_path = format!("{}{}", conf::root(), uri);
+            match File::open(access_path) {
+                Ok(mut file) => {
+                    let mut buffer = String::new();
+                    match file.read_to_string(&mut buffer) {
+                        Ok(_) => { }
+                        Err(_) => {
+                            //println!("debug(403): {}", format!("{}{}", conf::root(), uri));
+                            response.status = status::FORBIDDEN;
+                            return Ok(());
+                        }
+                    }
+                    response.entity_body.push_str(buffer.as_str());
+                }
+                Err(_) => {
+                    //println!("debug(404): {}", format!("{}{}", conf::root(), uri));
+                    response.status = status::NOT_FOUND;
+                    return Ok(());
+                }
+            }
+
         }
     }
 
