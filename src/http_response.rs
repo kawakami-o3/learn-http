@@ -95,7 +95,7 @@ impl Response {
         self.header.insert("HOST".to_string(), ip_port);
     }
 
-    pub fn set_server_name(&mut self, name: String) {
+    pub fn set_server(&mut self, name: String) {
         // Server         = "Server" ":" 1*( product | comment )
         self.header.insert("Server".to_string(), name);
     }

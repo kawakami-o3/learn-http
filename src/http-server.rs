@@ -15,13 +15,10 @@ use crate::http_response::*;
 // TODO cli option
 const CONF_PATH: & str = "server_conf.json";
 
-// TODO configurable
-const SERVER_NAME: & str = "Hoge/0.1 www/0.1";
-
 fn handle(request: &Request, response: &mut Response) -> Result<(), String> {
     response.version = request.version.clone();
     response.set_host(format!("{}:{}", conf::ip(), conf::port()));
-    response.set_server_name(SERVER_NAME.to_string());
+    response.set_server(conf::server());
 
     match String::from_utf8(request.bytes()) {
         Ok(s) => {
