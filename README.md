@@ -15,6 +15,7 @@ Run client
 # Features
 
 * Configuration
+  * [ ] Content root
   * [ ] Host's IP address
   * [ ] Listen port
   * [ ] Extension status code
