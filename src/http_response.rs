@@ -91,10 +91,15 @@ impl Response {
         self.header.insert("Allow".to_string(), value);
     }
 
-    pub fn set_server_name(&mut self, name: &'static str) {
-        // Server         = "Server" ":" 1*( product | comment )
-        self.header.insert("Server".to_string(), name.to_string());
+    pub fn set_host(&mut self, ip_port: String) {
+        self.header.insert("HOST".to_string(), ip_port);
     }
+
+    pub fn set_server_name(&mut self, name: String) {
+        // Server         = "Server" ":" 1*( product | comment )
+        self.header.insert("Server".to_string(), name);
+    }
+
 
     // TODO WWW-Authenticate
 

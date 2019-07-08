@@ -1,21 +1,29 @@
+
+mod conf;
 mod method;
 mod http_request;
 mod http_response;
 
-use std::thread;
 use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream, Shutdown};
+use std::thread;
+
 use crate::http_request::*;
 use crate::http_response::*;
+//use crate::conf;
+
+// TODO cli option
+const CONF_PATH: & str = "server_conf.json";
 
 // TODO configurable
-const HOST: & str = "127.0.0.1:34254";
+//const HOST: & str = "127.0.0.1:34254";
+const HOST: & str = "127.0.0.1";
 const SERVER_NAME: & str = "Hoge/0.1 www/0.1";
 
-fn handle(request: &Request, response: &mut Response) -> Result<(), String>{
+fn handle(request: &Request, response: &mut Response) -> Result<(), String> {
     response.version = request.version.clone();
-    response.host = HOST;
-    response.set_server_name(SERVER_NAME);
+    response.set_host(format!("{}:{}", HOST, conf::port()));
+    response.set_server_name(SERVER_NAME.to_string());
 
     match String::from_utf8(request.bytes()) {
         Ok(s) => {
@@ -26,7 +34,6 @@ fn handle(request: &Request, response: &mut Response) -> Result<(), String>{
             response.status = status::INTERNAL_SERVER_ERROR;
         }
     }
-
 
     Ok(())
 }
@@ -44,7 +51,6 @@ fn handle_request(mut stream: TcpStream) {
                 return;
             }
 
-            println!("> {} {:?}", n, buf[0..n].to_vec());
             match request.parse(&mut buf[0..n].to_vec()) {
                 Ok(()) => {},
                 Err(e) => {
@@ -76,9 +82,22 @@ fn handle_request(mut stream: TcpStream) {
 }
 
 fn main() -> std::io::Result<()> {
-    let listener = TcpListener::bind(HOST)?;
 
-    println!("starting ... {}", HOST);
+    // read a configuration file.
+    let server_conf = conf::load(CONF_PATH);
+    conf::set(server_conf.clone());
+
+    let listener = TcpListener::bind(format!("127.0.0.1:{}", conf::port()))?;
+
+    match listener.local_addr() {
+        Ok(addr) => {
+            println!("starting ... {}:{}", addr.ip(), addr.port());
+        }
+        Err(e) => {
+            panic!("Error(local_addr): {}", e);
+        }
+    }
+
     /*
     for stream in listener.incoming() {
         match stream {
@@ -95,8 +114,17 @@ fn main() -> std::io::Result<()> {
 
     loop {
         let (stream, _) = listener.accept()?;
-        thread::spawn(move || {
-            handle_request(stream);
-        });
+
+        let proc = |cnf, stream| {
+            return || {
+                conf::set(cnf);
+                handle_request(stream);
+            };
+        };
+        thread::spawn(proc(server_conf.clone(), stream));
+//        thread::spawn(|| {
+//            conf::set(server_conf.clone());
+//            handle_request(stream);
+//        });
     }
 }
