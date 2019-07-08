@@ -16,13 +16,11 @@ use crate::http_response::*;
 const CONF_PATH: & str = "server_conf.json";
 
 // TODO configurable
-//const HOST: & str = "127.0.0.1:34254";
-const HOST: & str = "127.0.0.1";
 const SERVER_NAME: & str = "Hoge/0.1 www/0.1";
 
 fn handle(request: &Request, response: &mut Response) -> Result<(), String> {
     response.version = request.version.clone();
-    response.set_host(format!("{}:{}", HOST, conf::port()));
+    response.set_host(format!("{}:{}", conf::ip(), conf::port()));
     response.set_server_name(SERVER_NAME.to_string());
 
     match String::from_utf8(request.bytes()) {
@@ -122,9 +120,5 @@ fn main() -> std::io::Result<()> {
             };
         };
         thread::spawn(proc(server_conf.clone(), stream));
-//        thread::spawn(|| {
-//            conf::set(server_conf.clone());
-//            handle_request(stream);
-//        });
     }
 }
