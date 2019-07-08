@@ -17,7 +17,7 @@ Run client
 * Configuration
   * [ ] Content root
   * [ ] Host's IP address
-  * [ ] Listen port
+  * [x] Listen port
   * [ ] Extension status code
   * [ ] Location response header
   * [ ] Allow response header
