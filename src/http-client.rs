@@ -1,8 +1,8 @@
 use std::io::prelude::*;
 use std::net::TcpStream;
 
-//const HOST: &str = "127.0.0.1:34254";
-const HOST: &str = "httpbin.org:80";
+const HOST: &str = "127.0.0.1:34254";
+//const HOST: &str = "httpbin.org:80";
 
 fn request_body() -> String {
     //format!("GET /get HTTP/1.0\r\n\r\n")
@@ -23,7 +23,7 @@ fn request_body() -> String {
     //format!("GET /index.html HTTP/1.1\r\n\r\n");
 
     // httpbin.org
-    let mut s = "GET /get HTTP/1.0".to_string();
+    let mut s = "GET /../Cargo.toml HTTP/1.0".to_string();
     s.push_str("\r\n");
 //    s.push_str("Host: httpbin.org");
 //    s.push_str("\r\n");
