@@ -35,8 +35,7 @@ fn handle(request: &Request, response: &mut Response) -> Result<(), String> {
             }
         }
         request_uri => {
-            // TODO fix directory traversal
-            //
+            // check for directory traversal attack
             let uri = match util::canonicalize(request_uri) {
                 Some(s) => s,
                 None => {
