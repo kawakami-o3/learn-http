@@ -1,12 +1,17 @@
 # learn-http
 
-Run server
+`learn-http` is a simple toy HTTP server. 
+
+# Usage
+
+
+1. Run a server.
 
 ```
 % cargo run --bin http-server
 ```
 
-Run client
+2. Access with a simple client.
 
 ```
 % cargo run --bin http-client
