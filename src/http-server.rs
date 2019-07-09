@@ -34,6 +34,7 @@ fn handle(request: &Request, response: &mut Response) -> Result<(), String> {
             }
         }
         uri => {
+            // TODO fix directory traversal
             let access_path = format!("{}{}", conf::root(), uri);
             match File::open(access_path) {
                 Ok(mut file) => {
