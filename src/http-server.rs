@@ -3,6 +3,7 @@ mod conf;
 mod method;
 mod http_request;
 mod http_response;
+mod util;
 
 use std::fs::File;
 use std::io::prelude::*;
@@ -33,8 +34,17 @@ fn handle(request: &Request, response: &mut Response) -> Result<(), String> {
                 }
             }
         }
-        uri => {
+        request_uri => {
             // TODO fix directory traversal
+            //
+            let uri = match util::canonicalize(request_uri) {
+                Some(s) => s,
+                None => {
+                    //println!("debug(403): {}", format!("{}{}", conf::root(), request_uri));
+                    response.status = status::FORBIDDEN;
+                    return Ok(());
+                }
+            };
             let access_path = format!("{}{}", conf::root(), uri);
             match File::open(access_path) {
                 Ok(mut file) => {
@@ -42,7 +52,7 @@ fn handle(request: &Request, response: &mut Response) -> Result<(), String> {
                     match file.read_to_string(&mut buffer) {
                         Ok(_) => { }
                         Err(_) => {
-                            println!("debug(403): {}", format!("{}{}", conf::root(), uri));
+                            //println!("debug(403): {}", format!("{}{}", conf::root(), uri));
                             response.status = status::FORBIDDEN;
                             return Ok(());
                         }
@@ -50,7 +60,7 @@ fn handle(request: &Request, response: &mut Response) -> Result<(), String> {
                     response.entity_body.push_str(buffer.as_str());
                 }
                 Err(_) => {
-                    println!("debug(404): {}", format!("{}{}", conf::root(), uri));
+                    //println!("debug(404): {}", format!("{}{}", conf::root(), uri));
                     response.status = status::NOT_FOUND;
                     return Ok(());
                 }
