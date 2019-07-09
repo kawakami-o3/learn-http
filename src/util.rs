@@ -1,6 +1,4 @@
 
-
-//pub fn canonicalize(s: String) -> Option<String> {
 pub fn canonicalize(s: &str) -> Option<String> {
     let mut v: Vec<&str> = Vec::new();
     for i in s.split("/") {
