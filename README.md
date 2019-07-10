@@ -30,4 +30,4 @@
   
 * [ ] WWW-authenticate
 * [ ] Pragma header
-  
+* [ ] Content-Encoding
