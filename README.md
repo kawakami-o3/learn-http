@@ -30,4 +30,4 @@
   
 * [ ] WWW-authenticate
 * [ ] Pragma header
-* [ ] Content-Encoding
+* [ ] Content-Encoding https://tools.ietf.org/html/rfc1945#section-10.3
