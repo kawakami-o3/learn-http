@@ -137,6 +137,8 @@ https://tools.ietf.org/html/rfc1945#section-7.1
 
 https://tools.ietf.org/html/rfc2068
 
+https://tools.ietf.org/html/rfc2616
+
 # HTTP/2.0
 
 https://tools.ietf.org/html/rfc7540
