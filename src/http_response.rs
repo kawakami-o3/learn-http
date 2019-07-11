@@ -1,8 +1,7 @@
-
-use std::collections::HashMap;
-use chrono::Local;
 use crate::http_request::*;
 use crate::method;
+use chrono::Local;
+use std::collections::HashMap;
 
 #[allow(dead_code)]
 pub mod status {
@@ -53,12 +52,11 @@ pub fn new() -> Response {
     };
 
     let date_str = Local::now().to_rfc2822();
-    res.add_header("Date", format!("{} GMT", &date_str[..date_str.len()-6]));
+    res.add_header("Date", format!("{} GMT", &date_str[..date_str.len() - 6]));
     return res;
 }
 
 impl Response {
-
     fn add_header(&mut self, name: &str, value: String) {
         self.header.insert(name.to_string(), value);
     }
@@ -66,7 +64,11 @@ impl Response {
     fn status_line(&self) -> String {
         // Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
         //               "HTTP/" 1*DIGIT "." 1*DIGIT SP 3DIGIT SP
-        format!("HTTP/{} {}\r\n", self.version.to_string(), status::to_string(self.status))
+        format!(
+            "HTTP/{} {}\r\n",
+            self.version.to_string(),
+            status::to_string(self.status)
+        )
     }
 
     #[allow(dead_code)]
@@ -99,7 +101,6 @@ impl Response {
         // Server         = "Server" ":" 1*( product | comment )
         self.header.insert("Server".to_string(), name);
     }
-
 
     // TODO WWW-Authenticate
 

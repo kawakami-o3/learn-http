@@ -1,4 +1,3 @@
-
 pub fn canonicalize(s: &str) -> Option<String> {
     let mut v: Vec<&str> = Vec::new();
     for i in s.split("/") {
@@ -9,7 +8,7 @@ pub fn canonicalize(s: &str) -> Option<String> {
                 }
             }
             ".." => {
-                v.pop();   
+                v.pop();
             }
             a => {
                 v.push(a);
@@ -27,5 +26,3 @@ pub fn canonicalize(s: &str) -> Option<String> {
 
     Some(v.join("/"))
 }
-
-

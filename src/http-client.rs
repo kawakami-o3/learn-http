@@ -25,28 +25,28 @@ fn request_body() -> String {
     // httpbin.org
     let mut s = "GET /../Cargo.toml HTTP/1.0".to_string();
     s.push_str("\r\n");
-//    s.push_str("Host: httpbin.org");
-//    s.push_str("\r\n");
+    //    s.push_str("Host: httpbin.org");
+    //    s.push_str("\r\n");
     s.push_str("Accept: application/json");
     s.push_str("\r\n");
-//    s.push_str("User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:67.0) Gecko/20100101 Firefox/67.0");
-//    s.push_str("\r\n");
-//    //s.push_str("Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-//    //s.push_str("\r\n");
-//    s.push_str("Accept-Language: ja,en-US;q=0.7,en;q=0.3");
-//    s.push_str("\r\n");
-//    s.push_str("Accept-Encoding: gzip, deflate");
-//    s.push_str("\r\n");
-//    s.push_str("DNT: 1");
-//    s.push_str("\r\n");
-//    s.push_str("Connection: keep-alive");
-//    s.push_str("\r\n");
-//    s.push_str("Upgrade-Insecure-Requests: 1");
-//    s.push_str("\r\n");
-//    s.push_str("Pragma: no-cache");
-//    s.push_str("\r\n");
-//    s.push_str("Cache-Control: no-cache");
-//    s.push_str("\r\n");
+    //    s.push_str("User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:67.0) Gecko/20100101 Firefox/67.0");
+    //    s.push_str("\r\n");
+    //    //s.push_str("Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+    //    //s.push_str("\r\n");
+    //    s.push_str("Accept-Language: ja,en-US;q=0.7,en;q=0.3");
+    //    s.push_str("\r\n");
+    //    s.push_str("Accept-Encoding: gzip, deflate");
+    //    s.push_str("\r\n");
+    //    s.push_str("DNT: 1");
+    //    s.push_str("\r\n");
+    //    s.push_str("Connection: keep-alive");
+    //    s.push_str("\r\n");
+    //    s.push_str("Upgrade-Insecure-Requests: 1");
+    //    s.push_str("\r\n");
+    //    s.push_str("Pragma: no-cache");
+    //    s.push_str("\r\n");
+    //    s.push_str("Cache-Control: no-cache");
+    //    s.push_str("\r\n");
     s.push_str("\r\n");
     return s;
 }
@@ -58,7 +58,6 @@ fn main() -> std::io::Result<()> {
 
     // Ex.) curl 127.0.0.1:34254 --http1.0
     //let cnt = format!("GET / HTTP/1.0\r\nHost: {}\r\nUser-Agent: curl/7.58.0\r\nAccept: */*\r\n\r\n", host);
-
 
     print!("sending ... ");
     stream.write(request_body().as_bytes())?;

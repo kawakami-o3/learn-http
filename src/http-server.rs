@@ -1,13 +1,12 @@
-
 mod conf;
-mod method;
 mod http_request;
 mod http_response;
+mod method;
 mod util;
 
 use std::fs::File;
 use std::io::prelude::*;
-use std::net::{TcpListener, TcpStream, Shutdown};
+use std::net::{Shutdown, TcpListener, TcpStream};
 use std::thread;
 
 use crate::http_request::*;
@@ -15,7 +14,7 @@ use crate::http_response::*;
 //use crate::conf;
 
 // TODO cli option
-const CONF_PATH: & str = "server_conf.json";
+const CONF_PATH: &str = "server_conf.json";
 
 fn handle(request: &Request, response: &mut Response) -> Result<(), String> {
     response.version = request.version.clone();
@@ -49,7 +48,7 @@ fn handle(request: &Request, response: &mut Response) -> Result<(), String> {
                 Ok(mut file) => {
                     let mut buffer = String::new();
                     match file.read_to_string(&mut buffer) {
-                        Ok(_) => { }
+                        Ok(_) => {}
                         Err(_) => {
                             //println!("debug(403): {}", format!("{}{}", conf::root(), uri));
                             response.status = status::FORBIDDEN;
@@ -64,7 +63,6 @@ fn handle(request: &Request, response: &mut Response) -> Result<(), String> {
                     return Ok(());
                 }
             }
-
         }
     }
 
@@ -85,7 +83,7 @@ fn handle_request(mut stream: TcpStream) {
             }
 
             match request.parse(&mut buf[0..n].to_vec()) {
-                Ok(()) => {},
+                Ok(()) => {}
                 Err(e) => {
                     println!("{}", e); // TODO error response
                     stream.shutdown(Shutdown::Both).unwrap();
@@ -115,7 +113,6 @@ fn handle_request(mut stream: TcpStream) {
 }
 
 fn main() -> std::io::Result<()> {
-
     // read a configuration file.
     let server_conf = conf::load(CONF_PATH);
     conf::set(server_conf.clone());

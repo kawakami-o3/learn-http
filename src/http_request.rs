@@ -7,34 +7,33 @@ const HT: u8 = 9;
 const DQ: u8 = 34;
 
 fn is_char(u: u8) -> bool {
-    return u <= 127
+    return u <= 127;
 }
 
 fn is_ctl(u: u8) -> bool {
-    return u == 127 || u <= 31
+    return u == 127 || u <= 31;
 }
 
 fn is_tspecial(u: u8) -> bool {
     let ts = vec![
-        40, // "("
-        41, // ")"
-        60, // "<"
-        62, // ">"
-        64, // "@"
-        44, // ","
-        59, // ";"
-        58, // ":"
-        92, // "\\"
-        DQ, // "\""
-        47, // "/"
-        91, // "["
-        93, // "]"
-        63, // "?"
-        61, // "="
+        40,  // "("
+        41,  // ")"
+        60,  // "<"
+        62,  // ">"
+        64,  // "@"
+        44,  // ","
+        59,  // ";"
+        58,  // ":"
+        92,  // "\\"
+        DQ,  // "\""
+        47,  // "/"
+        91,  // "["
+        93,  // "]"
+        63,  // "?"
+        61,  // "="
         123, // "{"
         125, // "}"
-        SP,
-        HT
+        SP, HT,
     ];
 
     for i in ts {
@@ -92,7 +91,7 @@ pub fn new() -> Request {
         uri: String::new(),
         version: Version::V0_9,
         header: Vec::new(),
-        
+
         entity_body: String::new(),
 
         idx: 0,
@@ -101,14 +100,13 @@ pub fn new() -> Request {
 }
 
 impl Request {
-
     fn skip_space(&mut self) {
         let mut length = 0;
         while self.idx + length < self.bytes.len() {
             match self.bytes[self.idx + length] {
                 //SP | CR | LF => {
                 SP => {
-                    length+=1;
+                    length += 1;
                 }
                 _ => {
                     break;
@@ -141,12 +139,12 @@ impl Request {
                     break;
                 }
                 _ => {
-                    length +=1;
+                    length += 1;
                 }
             }
         }
 
-        match std::str::from_utf8(&self.bytes[self.idx..self.idx+length]) {
+        match std::str::from_utf8(&self.bytes[self.idx..self.idx + length]) {
             Ok(s) => {
                 self.idx += length;
                 Some(s)
@@ -156,7 +154,6 @@ impl Request {
             }
         }
     }
-
 
     fn next_token(&mut self) -> Option<&str> {
         let mut length = 0;
@@ -170,7 +167,7 @@ impl Request {
             }
         }
 
-        match std::str::from_utf8(&self.bytes[self.idx..self.idx+length]) {
+        match std::str::from_utf8(&self.bytes[self.idx..self.idx + length]) {
             Ok(s) => {
                 self.idx += length;
                 Some(s)
@@ -183,7 +180,7 @@ impl Request {
 
     fn try_crlf(&self) -> Option<&str> {
         if self.idx + 1 < self.bytes.len() {
-            if self.bytes[self.idx] == CR && self.bytes[self.idx+1] == LF {
+            if self.bytes[self.idx] == CR && self.bytes[self.idx + 1] == LF {
                 return Some("\r\n");
             }
         }
@@ -195,7 +192,7 @@ impl Request {
         let u = self.bytes[self.idx];
         if u == SP || u == HT {
             let length = 1;
-            return match std::str::from_utf8(&self.bytes[self.idx-length..self.idx]) {
+            return match std::str::from_utf8(&self.bytes[self.idx - length..self.idx]) {
                 Ok(s) => Some(s),
                 Err(_) => None,
             };
@@ -205,7 +202,7 @@ impl Request {
             let w = self.bytes[self.idx + 2];
             if v == LF && (w == SP || w == HT) {
                 let length = 3;
-                return match std::str::from_utf8(&self.bytes[self.idx-length..self.idx]) {
+                return match std::str::from_utf8(&self.bytes[self.idx - length..self.idx]) {
                     Ok(s) => Some(s),
                     Err(_) => None,
                 };
@@ -230,7 +227,6 @@ impl Request {
         //
         // qdtext         = <any CHAR except <"> and CTLs,
         //                  but including LWS>
-
 
         // TODO combinations of token, tspecials, and quoted-string
 
@@ -258,7 +254,7 @@ impl Request {
 
         if length > 0 {
             self.idx += length;
-            return match std::str::from_utf8(&self.bytes[self.idx-length..self.idx]) {
+            return match std::str::from_utf8(&self.bytes[self.idx - length..self.idx]) {
                 Ok(s) => Some(s),
                 Err(_) => None,
             };
@@ -271,7 +267,7 @@ impl Request {
     fn parse_header_entry(&mut self) -> Result<(), String> {
         // HTTP-header = field-name ":" [ field-value ] CRLF
 
-        let mut header_entry = HeaderEntry{
+        let mut header_entry = HeaderEntry {
             field_name: String::new(),
             field_value: String::new(),
         };
@@ -337,19 +333,19 @@ impl Request {
         }
 
         match self.next_word() {
-                Some("HTTP/1.0") => {
-                    self.version = Version::V1_0;
-                }
-                Some("HTTP/1.1") => {
-                    self.version = Version::V1_1;
-                }
-                Some("\r\n") => {
-                    self.version = Version::V0_9;
-                    return Ok(());
-                }
-                a => {
-                    return Err(format!("invalid token: {:?}", a));
-                }
+            Some("HTTP/1.0") => {
+                self.version = Version::V1_0;
+            }
+            Some("HTTP/1.1") => {
+                self.version = Version::V1_1;
+            }
+            Some("\r\n") => {
+                self.version = Version::V0_9;
+                return Ok(());
+            }
+            a => {
+                return Err(format!("invalid token: {:?}", a));
+            }
         }
 
         self.idx += 2; // CR LF
@@ -373,7 +369,7 @@ impl Request {
 
         return Ok(());
     }
-    
+
     pub fn bytes(&self) -> Vec<u8> {
         self.bytes.clone()
     }

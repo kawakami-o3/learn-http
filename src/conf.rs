@@ -1,4 +1,3 @@
-
 use std::cell::RefCell;
 use std::fs::File;
 use std::io::Read;
@@ -16,27 +15,19 @@ pub fn set(conf: ServerConf) {
 }
 
 pub fn ip() -> String {
-    CONF.with(|c| {
-        c.borrow().ip.clone()
-    })
+    CONF.with(|c| c.borrow().ip.clone())
 }
 
 pub fn port() -> String {
-    CONF.with(|c| {
-        c.borrow().port.clone()
-    })
+    CONF.with(|c| c.borrow().port.clone())
 }
 
 pub fn server() -> String {
-    CONF.with(|c| {
-        c.borrow().server.clone()
-    })
+    CONF.with(|c| c.borrow().server.clone())
 }
 
 pub fn root() -> String {
-    CONF.with(|c| {
-        c.borrow().root.clone()
-    })
+    CONF.with(|c| c.borrow().root.clone())
 }
 
 #[derive(Clone, Deserialize)]
@@ -48,7 +39,7 @@ pub struct ServerConf {
 }
 
 fn new_conf() -> ServerConf {
-    ServerConf{
+    ServerConf {
         ip: String::new(),
         port: String::new(),
         server: String::new(),
@@ -59,14 +50,12 @@ fn new_conf() -> ServerConf {
 pub fn load(path: &str) -> ServerConf {
     let mut buffer = String::new();
     match File::open(path) {
-        Ok(mut file) => {
-            match file.read_to_string(&mut buffer) {
-                Ok(_) => { }
-                Err(e) => {
-                   panic!(e);
-                }
+        Ok(mut file) => match file.read_to_string(&mut buffer) {
+            Ok(_) => {}
+            Err(e) => {
+                panic!(e);
             }
-        }
+        },
         Err(e) => {
             panic!(e);
         }
@@ -82,4 +71,3 @@ pub fn load(path: &str) -> ServerConf {
         }
     }
 }
-
