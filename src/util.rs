@@ -1,3 +1,5 @@
+use std::path::Path;
+
 pub fn canonicalize(s: &str) -> Option<String> {
     let mut v: Vec<&str> = Vec::new();
     for i in s.split("/") {
@@ -25,4 +27,11 @@ pub fn canonicalize(s: &str) -> Option<String> {
     }
 
     Some(v.join("/"))
+}
+
+pub fn extension(target: &String) -> Option<&str> {
+    match Path::new(target.as_str()).extension() {
+        Some(s) => s.to_str(),
+        _ => None,
+    }
 }

@@ -37,7 +37,7 @@ pub struct Response {
     pub path: String,
     pub header: HashMap<String, String>,
 
-    pub entity_body: String,
+    pub entity_body: Vec<u8>,
 }
 
 pub fn new() -> Response {
@@ -48,7 +48,7 @@ pub fn new() -> Response {
         path: String::new(),
         header: HashMap::new(),
 
-        entity_body: String::new(),
+        entity_body: Vec::new(),
     };
 
     let date_str = Local::now().to_rfc2822();
@@ -57,7 +57,7 @@ pub fn new() -> Response {
 }
 
 impl Response {
-    fn add_header(&mut self, name: &str, value: String) {
+    pub fn add_header(&mut self, name: &str, value: String) {
         self.header.insert(name.to_string(), value);
     }
 
@@ -105,21 +105,20 @@ impl Response {
     // TODO WWW-Authenticate
 
     pub fn to_bytes(&self) -> Vec<u8> {
-        let mut ret = String::new();
+        let mut ret = Vec::new();
 
         // Status-Line
-        ret.push_str(self.status_line().as_str());
+        ret.append(&mut Vec::from(self.status_line().as_bytes()));
 
         // Header
         for (k, v) in &self.header {
-            ret.push_str(format!("{}: {}", k, v).as_str());
-            ret.push_str("\r\n");
+            ret.append(&mut Vec::from(format!("{}: {}\r\n", k, v).as_bytes()));
         }
 
-        ret.push_str("\r\n");
+        ret.append(&mut Vec::from("\r\n".as_bytes()));
 
-        ret.push_str(self.entity_body.as_str());
+        ret.append(&mut self.entity_body.clone());
 
-        return Vec::from(ret.as_bytes());
+        return ret;
     }
 }
