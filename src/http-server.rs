@@ -2,9 +2,10 @@ mod conf;
 mod http_request;
 mod http_response;
 mod method;
+mod status;
 mod util;
 
-use std::fs::File;
+use std::fs;
 use std::io::prelude::*;
 use std::net::{Shutdown, TcpListener, TcpStream};
 use std::thread;
@@ -39,7 +40,7 @@ fn handle(request: &Request, response: &mut Response) -> Result<(), String> {
                 }
             };
             let access_path = format!("{}{}", conf::root(), uri);
-            match File::open(access_path.clone()) {
+            match fs::File::open(access_path.clone()) {
                 Ok(mut file) => {
                     let mut buffer = Vec::new();
                     match file.read_to_end(&mut buffer) {
@@ -55,6 +56,25 @@ fn handle(request: &Request, response: &mut Response) -> Result<(), String> {
                 Err(_) => {
                     println!("debug(404): {}", format!("{}{}", conf::root(), uri));
                     response.status = status::NOT_FOUND;
+                    return Ok(());
+                }
+            }
+
+            // Last-Modified
+            // TODO
+            //   An origin server must not send a Last-Modified date which is later
+            //   than the server's time of message origination. In such cases, where
+            //   the resource's last modification would indicate some time in the
+            //   future, the server must replace that date with the message
+            //   origination date.
+            match util::modified(&access_path) {
+                Ok(t) => {
+                    let date_str = t.to_rfc2822();
+                    response.add_header("Last-Modified", format!("{} GMT", &date_str[..date_str.len() - 6]));
+                }
+                Err(_) => {
+                    println!("debug(503)1: {}", format!("{}{}", conf::root(), uri));
+                    response.status = status::INTERNAL_SERVER_ERROR;
                     return Ok(());
                 }
             }
@@ -107,7 +127,7 @@ fn handle_request(mut stream: TcpStream) {
     let response = &mut http_response::new();
     match handle(&request, response) {
         Ok(()) => {
-            println!("{:?}", String::from_utf8(response.to_bytes()));
+            //println!("response: {:?}", String::from_utf8(response.to_bytes()));
             stream.write(response.to_bytes().as_slice()).unwrap();
         }
         Err(e) => {
