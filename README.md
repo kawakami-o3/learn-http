@@ -33,4 +33,4 @@
   * [ ] Pragma header
   * [ ] Content-Encoding https://tools.ietf.org/html/rfc1945#section-10.3
   * [ ] Expires https://tools.ietf.org/html/rfc1945#section-10.7
-  
+  * [ ] Last-Modified
