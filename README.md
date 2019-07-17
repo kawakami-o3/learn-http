@@ -27,7 +27,10 @@
   * [ ] Extension status code
   * [ ] Location response header
   * [ ] Allow response header
+
+* Response Header
+  * [ ] WWW-authenticate
+  * [ ] Pragma header
+  * [ ] Content-Encoding https://tools.ietf.org/html/rfc1945#section-10.3
+  * [ ] Expires https://tools.ietf.org/html/rfc1945#section-10.7
   
-* [ ] WWW-authenticate
-* [ ] Pragma header
-* [ ] Content-Encoding https://tools.ietf.org/html/rfc1945#section-10.3
