@@ -23,14 +23,22 @@
   * [x] Content root
   * [x] Host's IP address
   * [x] Listen port
-  * [x] SERVER header
   * [ ] Extension status code
-  * [ ] Location response header
-  * [ ] Allow response header
 
-* Response Header
-  * [ ] WWW-authenticate
-  * [ ] Pragma header
+
+* Header
+  * [ ] Allow
+  * [ ] Authorization
   * [ ] Content-Encoding https://tools.ietf.org/html/rfc1945#section-10.3
+  * [ ] Content-Length
+  * [ ] Content-Type
+  * [ ] Date
   * [ ] Expires https://tools.ietf.org/html/rfc1945#section-10.7
+  * [ ] From
+  * [ ] If-Modified-Since
   * [x] Last-Modified
+  * [ ] Pragma
+  * [ ] Referer
+  * [x] Server
+  * [ ] User-Agent
+  * [ ] WWW-authenticate
