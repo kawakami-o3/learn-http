@@ -42,3 +42,17 @@
   * [x] Server
   * [ ] User-Agent
   * [ ] WWW-authenticate
+  
+  
+* Additinal Header
+  * [ ] Accept
+  * [ ] Accept-Charset
+  * [ ] Accept-Encoding
+  * [ ] Accept-Language
+  * [ ] Link
+  * [ ] MIME-Version
+  * [ ] Retry-After
+  * [ ] Title
+  * [ ] URI
+  
+  
