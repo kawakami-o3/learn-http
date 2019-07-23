@@ -1,4 +1,3 @@
-use chrono::Local;
 use std::collections::HashMap;
 
 use crate::http_request::*;
@@ -17,7 +16,7 @@ pub struct Response {
 }
 
 pub fn new() -> Response {
-    let mut res = Response {
+    Response {
         version: Version::V0_9,
         status: status::OK,
         host: "",
@@ -25,11 +24,7 @@ pub fn new() -> Response {
         header: HashMap::new(),
 
         entity_body: Vec::new(),
-    };
-
-    let date_str = Local::now().to_rfc2822();
-    res.add_header("Date", format!("{} GMT", &date_str[..date_str.len() - 6]));
-    return res;
+    }
 }
 
 impl Response {

@@ -10,6 +10,8 @@ use std::io::prelude::*;
 use std::net::{Shutdown, TcpListener, TcpStream};
 use std::thread;
 
+use chrono::Local;
+
 use crate::http_request::*;
 use crate::http_response::*;
 //use crate::conf;
@@ -21,6 +23,9 @@ fn handle(request: &Request, response: &mut Response) -> Result<(), String> {
     response.version = request.version.clone();
     response.set_host(format!("{}:{}", conf::ip(), conf::port()));
     response.set_server(conf::server());
+    let date_str = Local::now().to_rfc2822();
+    response.add_header("Date", format!("{} GMT", &date_str[..date_str.len() - 6]));
+
 
     match request.uri.as_str() {
         "/debug" => {
