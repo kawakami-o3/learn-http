@@ -27,8 +27,8 @@
 
 
 * Header
-  * [ ] Allow
-  * [ ] Authorization
+  * [ ] Allow https://tools.ietf.org/html/rfc1945#section-10.1
+  * [ ] Authorization https://tools.ietf.org/html/rfc1945#section-10.2
   * [ ] Content-Encoding https://tools.ietf.org/html/rfc1945#section-10.3
   * [x] Content-Length
   * [x] Content-Type
