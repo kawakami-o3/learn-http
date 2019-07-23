@@ -32,7 +32,7 @@
   * [ ] Content-Encoding https://tools.ietf.org/html/rfc1945#section-10.3
   * [x] Content-Length
   * [x] Content-Type
-  * [ ] Date
+  * [x] Date
   * [ ] Expires https://tools.ietf.org/html/rfc1945#section-10.7
   * [ ] From
   * [ ] If-Modified-Since
