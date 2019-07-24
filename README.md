@@ -34,7 +34,7 @@
   * [x] Content-Type
   * [x] Date
   * [ ] Expires https://tools.ietf.org/html/rfc1945#section-10.7
-  * [ ] From
+  * [x] From
   * [ ] If-Modified-Since
   * [x] Last-Modified
   * [ ] Pragma
