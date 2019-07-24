@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::method;
 
 const CR: u8 = 13;
@@ -69,18 +71,14 @@ pub struct Request {
     method: method::Method,
     pub uri: String,
     pub version: Version,
-    header: Vec<HeaderEntry>,
+    header: HashMap<String,String>,
+
+    pub from: Option<String>,
 
     entity_body: String,
 
     idx: usize,
     space_count: u32,
-}
-
-#[derive(Clone, Debug)]
-pub struct HeaderEntry {
-    field_name: String,
-    field_value: String,
 }
 
 pub fn new() -> Request {
@@ -90,7 +88,9 @@ pub fn new() -> Request {
         method: method::GET,
         uri: String::new(),
         version: Version::V0_9,
-        header: Vec::new(),
+        header: HashMap::new(),
+
+        from: None,
 
         entity_body: String::new(),
 
@@ -267,14 +267,8 @@ impl Request {
     fn parse_header_entry(&mut self) -> Result<(), String> {
         // HTTP-header = field-name ":" [ field-value ] CRLF
 
-        let mut header_entry = HeaderEntry {
-            field_name: String::new(),
-            field_value: String::new(),
-        };
-        match self.next_token() {
-            Some(s) => {
-                header_entry.field_name = s.to_string();
-            }
+        let name = match self.next_token() {
+            Some(s) => s.to_string(),
             None => {
                 return Err("Error: filed name of request header.".to_string());
             }
@@ -282,17 +276,22 @@ impl Request {
 
         self.idx += 1; // Expect ':'.
 
-        match self.parse_header_field_value() {
-            Some(s) => {
-                header_entry.field_value = s.to_string();
-            }
+        let value = match self.parse_header_field_value() {
+            Some(s) => s.to_string(),
             None => {
                 return Err("Error: filed value of request header.".to_string());
             }
         };
 
         self.idx += 2; // Expect "CR LF".
-        self.header.push(header_entry);
+        self.header.insert(name.clone(), value.clone());
+
+        match name.as_str() {
+            "From" => {
+                self.from = Some(value);
+            }
+            _ => { }
+        };
 
         Ok(())
     }
