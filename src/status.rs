@@ -3,6 +3,10 @@
 pub type Code = (isize, &'static str);
 pub type Code3 = Code;
 
+pub fn ext(i: isize, s: &'static str) -> Code {
+    (i, s)
+}
+
 pub fn to_string(c: Code) -> String {
     format!("{} {}", c.0, c.1)
 }
