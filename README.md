@@ -23,7 +23,7 @@
   * [x] Content root
   * [x] Host's IP address
   * [x] Listen port
-  * [ ] Extension status code
+  * [x] Extension status code
 
 
 * Header
