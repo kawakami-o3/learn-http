@@ -362,6 +362,10 @@ impl Request {
         self.header.get("From")
     }
 
+    pub fn referer(&self) -> Option<&String> {
+        self.header.get("Referer")
+    }
+
     pub fn user_agent(&self) -> Option<&String> {
         self.header.get("User-Agent")
     }
