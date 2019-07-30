@@ -362,6 +362,10 @@ impl Request {
         self.header.get("From")
     }
 
+    pub fn if_modified_since(&self) -> Option<&String> {
+        self.header.get("If-Modified-Since")
+    }
+
     pub fn referer(&self) -> Option<&String> {
         self.header.get("Referer")
     }
