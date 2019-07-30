@@ -40,7 +40,7 @@
   * [ ] Pragma
   * [ ] Referer
   * [x] Server
-  * [ ] User-Agent
+  * [x] User-Agent
   * [ ] WWW-authenticate
   
   
