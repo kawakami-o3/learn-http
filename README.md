@@ -38,7 +38,7 @@
   * [ ] If-Modified-Since
   * [x] Last-Modified
   * [ ] Pragma
-  * [ ] Referer
+  * [x] Referer
   * [x] Server
   * [x] User-Agent
   * [ ] WWW-authenticate
