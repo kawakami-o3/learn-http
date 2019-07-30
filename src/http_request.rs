@@ -73,8 +73,6 @@ pub struct Request {
     pub version: Version,
     header: HashMap<String,String>,
 
-    pub from: Option<String>,
-
     entity_body: String,
 
     idx: usize,
@@ -89,8 +87,6 @@ pub fn new() -> Request {
         uri: String::new(),
         version: Version::V0_9,
         header: HashMap::new(),
-
-        from: None,
 
         entity_body: String::new(),
 
@@ -286,13 +282,6 @@ impl Request {
         self.idx += 2; // Expect "CR LF".
         self.header.insert(name.clone(), value.clone());
 
-        match name.as_str() {
-            "From" => {
-                self.from = Some(value);
-            }
-            _ => { }
-        };
-
         Ok(())
     }
 
@@ -367,6 +356,10 @@ impl Request {
         }
 
         return Ok(());
+    }
+
+    pub fn from(&self) -> Option<&String> {
+        self.header.get("From")
     }
 
     pub fn bytes(&self) -> Vec<u8> {
