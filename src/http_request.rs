@@ -362,6 +362,10 @@ impl Request {
         self.header.get("From")
     }
 
+    pub fn user_agent(&self) -> Option<&String> {
+        self.header.get("User-Agent")
+    }
+
     pub fn bytes(&self) -> Vec<u8> {
         self.bytes.clone()
     }
