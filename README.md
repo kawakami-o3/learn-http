@@ -35,7 +35,7 @@
   * [x] Date
   * [ ] Expires https://tools.ietf.org/html/rfc1945#section-10.7
   * [x] From
-  * [ ] If-Modified-Since
+  * [x] If-Modified-Since
   * [x] Last-Modified
   * [ ] Pragma
   * [x] Referer
