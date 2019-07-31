@@ -66,21 +66,21 @@ pub fn modified(target: &String) -> Result<DateTime<Utc>, String> {
     */
 }
 
-pub fn parse_http_date(s: String) -> Result<DateTime<Utc>, chrono::format::ParseError> {
-    //let date_str = format!("{} GMT", s.as_str()[..s.len()-6]);
-    //DateTime::<FixedOffset>::parse_from_rfc2822(date_str.as_str()).map(|dt| dt.with_timezone(&Utc))
-    //DateTime::<FixedOffset>::parse_from_rfc2822(s.as_str()).map(|dt| dt.with_timezone(&Utc))
-   
-    let str_rfc2822 = format!("{} +0000", s.as_str()[..s.len()-4]);
+pub fn datetime_to_http_date(dt: &DateTime<Utc>) -> String {
+    let date_str = dt.to_rfc2822();
+    format!("{} GMT", &date_str[..date_str.len() - 6])
+}
+
+pub fn parse_http_date(s: &String) -> Result<DateTime<Utc>, chrono::format::ParseError> {
+    let str_rfc2822 = format!("{} +0000", &s.as_str()[..s.len()-4]);
     DateTime::<FixedOffset>::parse_from_rfc2822(str_rfc2822.as_str()).map(|dt| dt.with_timezone(&Utc))
 }
 
 #[test]
 fn test_parse_http_date() {
-    //let s = "Sat, 29 Oct 1994 19:43:31 GMT";
-    let s = "Sat, 29 Oct 1994 19:43:31 +0000";
-    //let s = "1996-12-19T16:39:57-08:00";
-    let dt = parse_http_date(format!("{} GMT", s));
+    let expected = "Sat, 29 Oct 1994 19:43:31 +0000";
+    let arg = format!("{} GMT", &expected[..expected.len()-6]);
+    let dt = parse_http_date(&arg);
 
-    assert_eq!(dt.map(|d| d.to_rfc2822()), Ok(s.to_string()));
+    assert_eq!(dt.map(|d| d.to_rfc2822()), Ok(expected.to_string()));
 }

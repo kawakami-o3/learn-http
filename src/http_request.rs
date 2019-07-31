@@ -1,6 +1,8 @@
 use std::collections::HashMap;
+use chrono::{DateTime, Utc};
 
 use crate::method;
+use crate::util;
 
 const CR: u8 = 13;
 const LF: u8 = 10;
@@ -362,8 +364,14 @@ impl Request {
         self.header.get("From")
     }
 
-    pub fn if_modified_since(&self) -> Option<&String> {
-        self.header.get("If-Modified-Since")
+    pub fn if_modified_since(&self) -> Option<DateTime<Utc>> {
+        match self.header.get("If-Modified-Since") {
+            Some(s) => match util::parse_http_date(s) {
+                Ok(dt) => Some(dt),
+                Err(_) => None,
+            }
+            None => None,
+        }
     }
 
     pub fn referer(&self) -> Option<&String> {

@@ -19,6 +19,18 @@ use crate::http_response::*;
 // TODO cli option
 const CONF_PATH: &str = "server_conf.json";
 
+fn handle_content_info(response: &mut Response, access_path: & String) {
+    match util::extension(&access_path) {
+        Some("ico") => {
+            response.add_header("Content-Type", "image/x-icon".to_string());
+            response.add_header("Content-Length", format!("{}", response.entity_body.len()));
+        }
+        _ => {
+            response.add_header("Content-Type", "text/html".to_string());
+        }
+    }
+}
+
 fn handle(request: &Request, response: &mut Response) -> Result<(), String> {
     response.version = request.version.clone();
     response.set_host(format!("{}:{}", conf::ip(), conf::port()));
@@ -74,26 +86,36 @@ fn handle(request: &Request, response: &mut Response) -> Result<(), String> {
             //   origination date.
             match util::modified(&access_path) {
                 Ok(t) => {
-                    let date_str = t.to_rfc2822();
-                    response.add_header("Last-Modified", format!("{} GMT", &date_str[..date_str.len() - 6]));
+                    response.modified_datetime = Some(t);
+                    response.add_header("Last-Modified", util::datetime_to_http_date(&t));
                 }
                 Err(_) => {
                     println!("debug(503)1: {}", format!("{}{}", conf::root(), uri));
                     response.status = status::INTERNAL_SERVER_ERROR;
                     return Ok(());
                 }
-            }
+            };
 
-            match util::extension(&access_path) {
-                Some("ico") => {
-                    response.add_header("Content-Type", "image/x-icon".to_string());
-                    response
-                        .add_header("Content-Length", format!("{}", response.entity_body.len()));
+            match request.if_modified_since() {
+                Some(s) => {
+                    match response.modified_datetime {
+                        Some(t) => {
+                            if s > t {
+                                response.status = status::NOT_MODIFIED;
+                                return Ok(());
+                            }
+                        }
+                        None => {
+                            // already returned at the checkpoint for Last-Modified.
+                        }
+                    }
                 }
-                _ => {
-                    response.add_header("Content-Type", "text/html".to_string());
+                None => {
+                    // do nothing
                 }
-            }
+            };
+
+            handle_content_info(response, &access_path);
         }
     }
 

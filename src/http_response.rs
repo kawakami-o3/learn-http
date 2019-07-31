@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use chrono::{DateTime, Utc};
 
 use crate::http_request::*;
 use crate::method;
@@ -12,6 +13,8 @@ pub struct Response {
     pub path: String,
     pub header: HashMap<String, String>,
 
+    pub modified_datetime: Option<DateTime<Utc>>,
+
     pub entity_body: Vec<u8>,
 }
 
@@ -22,6 +25,8 @@ pub fn new() -> Response {
         host: "",
         path: String::new(),
         header: HashMap::new(),
+
+        modified_datetime: None,
 
         entity_body: Vec::new(),
     }
