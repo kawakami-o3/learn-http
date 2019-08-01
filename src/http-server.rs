@@ -56,7 +56,10 @@ fn handle(request: &Request, response: &mut Response) -> Result<(), String> {
                     return Ok(());
                 }
             };
+
+
             let access_path = format!("{}{}", conf::root(), uri);
+            // TODO access a directory
             match fs::File::open(access_path.clone()) {
                 Ok(mut file) => {
                     let mut buffer = Vec::new();
