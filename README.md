@@ -24,7 +24,10 @@
   * [x] Host's IP address
   * [x] Listen port
   * [x] Extension status code
-
+  * [ ] Allow
+  * [ ] Content-Encoding
+  * [ ] Expires
+  * [ ] Location
 
 * Header
   * [ ] Allow https://tools.ietf.org/html/rfc1945#section-10.1
