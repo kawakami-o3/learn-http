@@ -37,6 +37,7 @@
   * [x] From
   * [x] If-Modified-Since
   * [x] Last-Modified
+  * [ ] Location
   * [ ] Pragma
   * [x] Referer
   * [x] Server
@@ -56,4 +57,4 @@
   * [ ] URI
   
 
-* [ ] Access Authentication https://tools.ietf.org/html/rfc1945#section-11
+* Access Authentication https://tools.ietf.org/html/rfc1945#section-11
