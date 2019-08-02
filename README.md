@@ -17,7 +17,7 @@
 % cargo run --bin http-client
 ```
 
-# Features
+# Features (HTTP/1.0)
 
 * Configuration
   * [x] Content root
