@@ -17,7 +17,13 @@
 % cargo run --bin http-client
 ```
 
-# Features (HTTP/1.0)
+# Features
+
+## HTTP/0.9
+
+HTTP/1.0 contains HTTP/0.9 features, and `learn-http` supports them.
+
+## HTTP/1.0
 
 * Configuration
   * [x] Content root
