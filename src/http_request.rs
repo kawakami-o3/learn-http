@@ -382,6 +382,17 @@ impl Request {
         self.header.get("User-Agent")
     }
 
+    pub fn pragma(&self) -> Option<&String> {
+        self.header.get("Pragma")
+    }
+
+    pub fn is_no_cache(&self) -> bool {
+        match self.pragma() {
+            Some(s) => s.contains("no-cache"),
+            None => false,
+        }
+    }
+
     pub fn bytes(&self) -> Vec<u8> {
         self.bytes.clone()
     }
