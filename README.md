@@ -41,7 +41,7 @@
   * [x] If-Modified-Since
   * [x] Last-Modified
   * [ ] Location
-  * [ ] Pragma
+  * [x] Pragma
   * [x] Referer
   * [x] Server
   * [x] User-Agent
