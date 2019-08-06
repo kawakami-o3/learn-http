@@ -12,12 +12,32 @@ use std::thread;
 
 use chrono::Local;
 
+use serde::Deserialize;
+
 use crate::http_request::*;
 use crate::http_response::*;
 //use crate::conf;
 
 // TODO cli option
 const CONF_PATH: &str = "server_conf.json";
+
+const DIR_CONF: &str = ".http.conifg";
+
+/*
+#[derive(Debug, Deserialize)]
+struct DirConfig {
+    auth: Option<AuthConfig>,
+    user: Option<UserConfig>,
+}
+
+#[derive(Debug, Deserialize)]
+struct AuthConfig {
+}
+
+#[derive(Debug, Deserialize)]
+struct UserConfig {
+}
+*/
 
 fn handle_content_info(response: &mut Response, access_path: & String) {
     match util::extension(&access_path) {
