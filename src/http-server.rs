@@ -1,3 +1,5 @@
+extern crate toml;
+
 mod conf;
 mod http_request;
 mod http_response;
@@ -8,11 +10,12 @@ mod util;
 use std::fs;
 use std::io::prelude::*;
 use std::net::{Shutdown, TcpListener, TcpStream};
+use std::path::Path;
 use std::thread;
 
 use chrono::Local;
-
 use serde::Deserialize;
+//use serde_derive::Deserialize;
 
 use crate::http_request::*;
 use crate::http_response::*;
@@ -21,23 +24,20 @@ use crate::http_response::*;
 // TODO cli option
 const CONF_PATH: &str = "server_conf.json";
 
-const DIR_CONF: &str = ".http.conifg";
+const ACCESS_CONF: &str = ".access";
 
-/*
+
 #[derive(Debug, Deserialize)]
-struct DirConfig {
+struct AccessConfig {
     auth: Option<AuthConfig>,
-    user: Option<UserConfig>,
 }
 
 #[derive(Debug, Deserialize)]
 struct AuthConfig {
+    auth_type: String,
+    auth_name: String,
+    pass_file: String,
 }
-
-#[derive(Debug, Deserialize)]
-struct UserConfig {
-}
-*/
 
 fn handle_content_info(response: &mut Response, access_path: & String) {
     match util::extension(&access_path) {
@@ -79,7 +79,22 @@ fn handle(request: &Request, response: &mut Response) -> Result<(), String> {
 
 
             let access_path = format!("{}{}", conf::root(), uri);
-            // TODO access a directory
+            let path = Path::new(&access_path);
+
+            // read a configuration file.
+            let config_path = if path.is_dir() {
+                path.with_file_name(ACCESS_CONF)
+            } else {
+                path.parent().unwrap().with_file_name(ACCESS_CONF)
+            };
+            let mut config_content = String::new();
+            util::read_file(&config_path.to_str().unwrap().to_string(), &mut config_content).unwrap();
+            //let access_config = toml::from_str(config_content.as_str());
+
+
+
+            // TODO access a directory.
+            // FIXME remove unnecessary clone.
             match fs::File::open(access_path.clone()) {
                 Ok(mut file) => {
                     let mut buffer = Vec::new();

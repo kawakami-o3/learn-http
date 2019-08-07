@@ -1,4 +1,4 @@
 [auth]
-type = "Basic"
-name = "www"
-file = ".password"
+auth_type = "Basic"
+auth_name = "www"
+pass_file = ".password"

@@ -1,4 +1,6 @@
 use std::fs;
+use std::fs::File;
+use std::io::Read;
 use std::path::Path;
 
 use std::time::SystemTime;
@@ -84,3 +86,11 @@ fn test_parse_http_date() {
 
     assert_eq!(dt.map(|d| d.to_rfc2822()), Ok(expected.to_string()));
 }
+
+pub fn read_file(file_name: &String, buf: &mut String) -> Result<usize, std::io::Error> {
+    match File::open(file_name) {
+        Ok(mut file) => file.read_to_string(buf),
+        Err(e) => Err(e),
+    }
+}
+
