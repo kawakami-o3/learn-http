@@ -19,6 +19,12 @@
 
 # Features
 
+## HTTP/0.9
+
+HTTP/1.0 contains HTTP/0.9 features, and `learn-http` supports them.
+
+## HTTP/1.0
+
 * Configuration
   * [x] Content root
   * [x] Host's IP address
@@ -41,11 +47,11 @@
   * [x] If-Modified-Since
   * [x] Last-Modified
   * [ ] Location
-  * [ ] Pragma
+  * [x] Pragma
   * [x] Referer
   * [x] Server
   * [x] User-Agent
-  * [ ] WWW-authenticate
+  * [ ] WWW-authenticate https://tools.ietf.org/html/rfc1945#section-10.16
   
   
 * Additinal Header
