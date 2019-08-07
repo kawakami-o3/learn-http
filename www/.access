@@ -1,8 +1,4 @@
 [auth]
 type = "Basic"
 name = "www"
-
-[user]
-kawakami = "hoge"
-
-
+file = ".password"
