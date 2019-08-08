@@ -10,7 +10,7 @@ mod util;
 use std::fs;
 use std::io::prelude::*;
 use std::net::{Shutdown, TcpListener, TcpStream};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::thread;
 
 use chrono::Local;
@@ -32,11 +32,46 @@ struct AccessConfig {
     auth: Option<AuthConfig>,
 }
 
+impl AccessConfig {
+    fn new() -> AccessConfig {
+        AccessConfig {
+            auth: None,
+        }
+    }
+}
+
 #[derive(Debug, Deserialize)]
 struct AuthConfig {
     auth_type: String,
     auth_name: String,
     pass_file: String,
+}
+
+impl AuthConfig {
+    fn is_basic(& self) -> bool {
+        self.auth_type == "Basic"
+    }
+}
+
+fn load_access_config(access_path: & String) -> AccessConfig {
+    let path = Path::new(access_path);
+    let config_path = if path.is_dir() {
+        PathBuf::from(format!("{}/{}", access_path, ACCESS_CONF))
+    } else {
+        path.with_file_name(ACCESS_CONF)
+    };
+
+    if !config_path.exists() {
+        return AccessConfig::new();
+    }
+
+    let mut config_content = String::new();
+    util::read_file(&config_path.to_str().unwrap().to_string(), &mut config_content).unwrap();
+
+    match toml::from_str(config_content.as_str()) {
+        Ok(c) => c,
+        Err(_) => AccessConfig { auth: None },
+    }
 }
 
 fn handle_content_info(response: &mut Response, access_path: & String) {
@@ -79,23 +114,20 @@ fn handle(request: &Request, response: &mut Response) -> Result<(), String> {
 
 
             let access_path = format!("{}{}", conf::root(), uri);
-            let path = Path::new(&access_path);
 
             // read a configuration file.
-            let config_path = if path.is_dir() {
-                path.with_file_name(ACCESS_CONF)
-            } else {
-                path.parent().unwrap().with_file_name(ACCESS_CONF)
-            };
-            let mut config_content = String::new();
-            util::read_file(&config_path.to_str().unwrap().to_string(), &mut config_content).unwrap();
-            //let access_config = toml::from_str(config_content.as_str());
-
-
+            let access_config = load_access_config(&access_path);
+            if let Some(auth_config) = access_config.auth {
+                if auth_config.is_basic() {
+                    // FIXME
+                    response.status = status::UNAUTHORIZED;
+                    return Ok(())
+                }
+            }
 
             // TODO access a directory.
             // FIXME remove unnecessary clone.
-            match fs::File::open(access_path.clone()) {
+            match fs::File::open(&access_path) {
                 Ok(mut file) => {
                     let mut buffer = Vec::new();
                     match file.read_to_end(&mut buffer) {
