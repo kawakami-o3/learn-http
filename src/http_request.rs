@@ -393,6 +393,19 @@ impl Request {
         }
     }
 
+    pub fn authorization(&self) -> Vec<&str> {
+        match self.header.get("Authorization") {
+            Some(s) => {
+                if s.len() < 1 {
+                    return Vec::new();
+                }
+                // The first character is a space.
+                s[1..].split(' ').collect()
+            }
+            None => Vec::new(),
+        }
+    }
+
     pub fn bytes(&self) -> Vec<u8> {
         self.bytes.clone()
     }

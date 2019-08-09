@@ -45,6 +45,8 @@ struct AuthConfig {
     auth_type: String,
     auth_name: String,
     pass_file: String,
+
+    pass_content: Option<String>,
 }
 
 impl AuthConfig {
@@ -68,10 +70,25 @@ fn load_access_config(access_path: & String) -> AccessConfig {
     let mut config_content = String::new();
     util::read_file(&config_path.to_str().unwrap().to_string(), &mut config_content).unwrap();
 
-    match toml::from_str(config_content.as_str()) {
+    let mut config = match toml::from_str(config_content.as_str()) {
         Ok(c) => c,
         Err(_) => AccessConfig { auth: None },
+    };
+
+    if config.auth.is_some() {
+        let mut auth = config.auth.unwrap();
+
+        if auth.pass_file.len() > 0 {
+            let target = path.with_file_name(&auth.pass_file);
+            let mut buf = String::new();
+            util::read_file(&target.to_str().unwrap().to_string(), &mut buf).unwrap();
+            auth.pass_content = Some(buf);
+        }
+
+        config.auth = Some(auth);
     }
+
+    return config;
 }
 
 fn handle_content_info(response: &mut Response, access_path: & String) {
@@ -93,6 +110,8 @@ fn handle(request: &Request, response: &mut Response) -> Result<(), String> {
     let date_str = Local::now().to_rfc2822();
     response.add_header("Date", format!("{} GMT", &date_str[..date_str.len() - 6]));
 
+    println!("request: {:?}", request);
+    println!("authorization: {:?}", request.authorization());
 
     match request.uri.as_str() {
         "/debug" => {
@@ -113,36 +132,51 @@ fn handle(request: &Request, response: &mut Response) -> Result<(), String> {
             };
 
 
-            let access_path = format!("{}{}", conf::root(), uri);
+            let access_target = format!("{}{}", conf::root(), uri);
+            let access_path = Path::new(&access_target);
 
             // read a configuration file.
-            let access_config = load_access_config(&access_path);
+            let access_config = load_access_config(&access_target);
             if let Some(auth_config) = access_config.auth {
                 if auth_config.is_basic() {
-                    // FIXME
-                    response.status = status::UNAUTHORIZED;
-                    return Ok(())
+                    let cred = request.authorization();
+                    if cred.len() < 2 || cred[0] != "Basic" {
+                        response.status = status::UNAUTHORIZED;
+                        response.add_header("WWW-authenticate", format!("Basic realm=\"{}\"", auth_config.auth_name));
+                        return Ok(())
+                    }
+
+                    let user_pass = String::from_utf8(base64::decode(cred[1]).unwrap()).unwrap();
+                    let matched = auth_config.pass_content.unwrap().split('\n').any(|i| i == user_pass);
+                    if !matched {
+                        response.status = status::UNAUTHORIZED;
+                        response.add_header("WWW-authenticate", format!("Basic realm=\"{}\"", auth_config.auth_name));
+                        return Ok(())
+                    }
                 }
             }
 
-            // TODO access a directory.
-            // FIXME remove unnecessary clone.
-            match fs::File::open(&access_path) {
-                Ok(mut file) => {
-                    let mut buffer = Vec::new();
-                    match file.read_to_end(&mut buffer) {
-                        Ok(_) => {}
-                        Err(e) => {
-                            println!("debug(403)2: {} {}", format!("{}{}", conf::root(), uri), e);
-                            response.status = status::FORBIDDEN;
-                            return Ok(());
-                        }
-                    }
-                    response.entity_body.append(&mut buffer);
+            if !access_path.exists() {
+                println!("debug(404): {}", format!("{}{}", conf::root(), uri));
+                response.status = status::NOT_FOUND;
+                return Ok(());
+            }
+
+            if access_path.is_dir() {
+                // TODO access a directory.
+                unsafe {
+                    response.entity_body.append(access_target.clone().as_mut_vec());
                 }
-                Err(_) => {
-                    println!("debug(404): {}", format!("{}{}", conf::root(), uri));
-                    response.status = status::NOT_FOUND;
+                return Ok(());
+            }
+
+            match fs::read(access_path) {
+                Ok(mut v) => {
+                    response.entity_body.append(&mut v);
+                }
+                Err(e) => {
+                    println!("debug(403)2: {} {}", format!("{}{}", conf::root(), uri), e);
+                    response.status = status::FORBIDDEN;
                     return Ok(());
                 }
             }
@@ -154,7 +188,7 @@ fn handle(request: &Request, response: &mut Response) -> Result<(), String> {
             //   the resource's last modification would indicate some time in the
             //   future, the server must replace that date with the message
             //   origination date.
-            match util::modified(&access_path) {
+            match util::modified(&access_target) {
                 Ok(t) => {
                     response.modified_datetime = Some(t);
                     response.add_header("Last-Modified", util::datetime_to_http_date(&t));
@@ -185,7 +219,7 @@ fn handle(request: &Request, response: &mut Response) -> Result<(), String> {
                 }
             };
 
-            handle_content_info(response, &access_path);
+            handle_content_info(response, &access_target);
         }
     }
 
