@@ -103,6 +103,23 @@ fn handle_content_info(response: &mut Response, access_path: & String) {
     }
 }
 
+fn handle_basic_authorization(request: &Request, response: &mut Response, auth_config: AuthConfig) {
+    let cred = request.authorization();
+    if cred.len() < 2 || cred[0] != "Basic" {
+        response.status = status::UNAUTHORIZED;
+        response.add_header("WWW-authenticate", format!("Basic realm=\"{}\"", auth_config.auth_name));
+        return;
+    }
+
+    let user_pass = String::from_utf8(base64::decode(cred[1]).unwrap()).unwrap();
+    let matched = auth_config.pass_content.unwrap().split('\n').any(|i| i == user_pass);
+    if !matched {
+        response.status = status::UNAUTHORIZED;
+        response.add_header("WWW-authenticate", format!("Basic realm=\"{}\"", auth_config.auth_name));
+        return;
+    }
+}
+
 fn handle(request: &Request, response: &mut Response) -> Result<(), String> {
     response.version = request.version.clone();
     response.set_host(format!("{}:{}", conf::ip(), conf::port()));
@@ -139,20 +156,8 @@ fn handle(request: &Request, response: &mut Response) -> Result<(), String> {
             let access_config = load_access_config(&access_target);
             if let Some(auth_config) = access_config.auth {
                 if auth_config.is_basic() {
-                    let cred = request.authorization();
-                    if cred.len() < 2 || cred[0] != "Basic" {
-                        response.status = status::UNAUTHORIZED;
-                        response.add_header("WWW-authenticate", format!("Basic realm=\"{}\"", auth_config.auth_name));
-                        return Ok(())
-                    }
-
-                    let user_pass = String::from_utf8(base64::decode(cred[1]).unwrap()).unwrap();
-                    let matched = auth_config.pass_content.unwrap().split('\n').any(|i| i == user_pass);
-                    if !matched {
-                        response.status = status::UNAUTHORIZED;
-                        response.add_header("WWW-authenticate", format!("Basic realm=\"{}\"", auth_config.auth_name));
-                        return Ok(())
-                    }
+                    handle_basic_authorization(request, response, auth_config);
+                    return Ok(())
                 }
             }
 
