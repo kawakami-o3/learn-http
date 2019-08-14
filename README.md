@@ -68,3 +68,6 @@ HTTP/1.0 contains HTTP/0.9 features, and `learn-http` supports them.
 
 * Access Authentication https://tools.ietf.org/html/rfc1945#section-11
   * [x] Basic authentication
+
+## HTTP/1.1
+
