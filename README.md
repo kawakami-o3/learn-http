@@ -71,3 +71,9 @@ HTTP/1.0 contains HTTP/0.9 features, and `learn-http` supports them.
 
 ## HTTP/1.1
 
+* Method
+
+* Header
+
+* Access Authentication https://tools.ietf.org/html/rfc2616#section-11
+  * [ ] Digest authentication https://tools.ietf.org/html/rfc2616#ref-43
