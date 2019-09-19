@@ -282,7 +282,7 @@ impl Request {
         };
 
         self.idx += 2; // Expect "CR LF".
-        self.header.insert(name.clone(), value.clone());
+        self.header.insert(name.to_lowercase(), value.clone());
 
         Ok(())
     }
@@ -360,12 +360,16 @@ impl Request {
         return Ok(());
     }
 
+    pub fn get_header(&self, s: &str) -> Option<&String> {
+        self.header.get(&s.to_lowercase())
+    }
+
     pub fn from(&self) -> Option<&String> {
-        self.header.get("From")
+        self.get_header("From")
     }
 
     pub fn if_modified_since(&self) -> Option<DateTime<Utc>> {
-        match self.header.get("If-Modified-Since") {
+        match self.get_header("If-Modified-Since") {
             Some(s) => match util::parse_http_date(s) {
                 Ok(dt) => Some(dt),
                 Err(_) => None,
@@ -375,15 +379,15 @@ impl Request {
     }
 
     pub fn referer(&self) -> Option<&String> {
-        self.header.get("Referer")
+        self.get_header("Referer")
     }
 
     pub fn user_agent(&self) -> Option<&String> {
-        self.header.get("User-Agent")
+        self.get_header("User-Agent")
     }
 
     pub fn pragma(&self) -> Option<&String> {
-        self.header.get("Pragma")
+        self.get_header("Pragma")
     }
 
     pub fn is_no_cache(&self) -> bool {
@@ -394,7 +398,7 @@ impl Request {
     }
 
     pub fn authorization(&self) -> Vec<&str> {
-        match self.header.get("Authorization") {
+        match self.get_header("Authorization") {
             Some(s) => {
                 if s.len() < 1 {
                     return Vec::new();
