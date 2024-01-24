@@ -1,6 +1,6 @@
 # learn-http
 
-`learn-http` is a simple toy HTTP server. 
+`learn-http` is a basic, experimental HTTP server. 
 
 # Usage
 
